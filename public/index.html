@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vidyut Quiz · MITS Gwalior</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;--bg:#070b1a;--bg2:#0d1430;--card:rgba(20,28,58,.72);--tx:#eaf0ff;--mu:#8e9bc4;--ac:#ffd60a;--ac2:#22d3ee;--ok:#2ee59d;--bad:#ff5470;--bd:rgba(120,150,255,.18);--hd:"Space Grotesk",system-ui,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;color:var(--tx);font:16px/1.55 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh;
+ background:radial-gradient(900px 500px at 85% -10%,rgba(34,211,238,.18),transparent 60%),radial-gradient(800px 500px at -10% 10%,rgba(255,214,10,.13),transparent 55%),var(--bg);background-attachment:fixed}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;background-image:linear-gradient(var(--bd) 1px,transparent 1px),linear-gradient(90deg,var(--bd) 1px,transparent 1px);background-size:44px 44px;-webkit-mask-image:radial-gradient(ellipse at 50% 0,#000 10%,transparent 70%);mask-image:radial-gradient(ellipse at 50% 0,#000 10%,transparent 70%)}
+.top{position:relative;max-width:860px;margin:0 auto;padding:max(14px,env(safe-area-inset-top)) 16px 0;display:flex;align-items:center;gap:12px}
+.top svg{width:38px;height:38px;filter:drop-shadow(0 0 10px rgba(255,214,10,.7));animation:pulse 2.4s ease-in-out infinite}
+.top b{display:block;font:700 22px/1 var(--hd);letter-spacing:.32em;color:var(--ac)}.top small{color:var(--mu);font-size:12px;letter-spacing:.08em}
+main{position:relative;max-width:860px;margin:0 auto;padding:10px 16px 28px}
+h1{font:700 34px/1.15 var(--hd);margin:14px 0 4px}h1 span{background:linear-gradient(90deg,var(--ac),var(--ac2));-webkit-background-clip:text;background-clip:text;color:transparent}
+h2{font:700 20px/1.3 var(--hd);margin:0 0 10px}.mu{color:var(--mu);font-size:14px}
+.card{background:var(--card);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid var(--bd);border-radius:18px;padding:20px;margin:16px 0;box-shadow:0 10px 40px rgba(0,0,0,.35);animation:rise .4s ease both}
+button{font:600 15px var(--hd);cursor:pointer;border:0;border-radius:12px;padding:11px 18px;color:#1a1400;background:linear-gradient(135deg,var(--ac),#ffb703);box-shadow:0 4px 18px rgba(255,214,10,.28);transition:transform .15s,box-shadow .15s}
+button:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 26px rgba(255,214,10,.4)}
+button.sec{background:rgba(255,255,255,.04);color:var(--tx);border:1px solid var(--bd);box-shadow:none}button.sec:hover:not(:disabled){border-color:var(--ac2);box-shadow:0 0 18px rgba(34,211,238,.25)}
+button:disabled{opacity:.45;cursor:default}
+input,textarea{color:var(--tx)!important;-webkit-text-fill-color:var(--tx)!important;caret-color:var(--ac);font:inherit;width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--bd);background:rgba(7,11,26,.7);transition:border-color .15s,box-shadow .15s}
+input:focus,textarea:focus{outline:0;border-color:var(--ac2);box-shadow:0 0 0 3px rgba(34,211,238,.2)}input::placeholder,textarea::placeholder{color:var(--mu);-webkit-text-fill-color:var(--mu)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.grow{flex:1 1 200px}
+.code{font:700 52px/1 var(--hd);letter-spacing:.18em;color:var(--ac);text-shadow:0 0 22px rgba(255,214,10,.55)}
+.opt{display:block;width:100%;text-align:left;margin:10px 0;padding:15px 18px;background:rgba(7,11,26,.6);color:var(--tx);border:2px solid var(--bd);box-shadow:none;font:500 16px Inter,sans-serif}
+.opt:hover:not(:disabled){border-color:var(--ac2);background:rgba(34,211,238,.08);box-shadow:0 0 20px rgba(34,211,238,.18)}
+.opt.sel{border-color:var(--ac);background:rgba(255,214,10,.1)}.opt.ok{border-color:var(--ok);background:rgba(46,229,157,.14)}.opt.no{border-color:var(--bad);background:rgba(255,84,112,.12)}
+table{width:100%;border-collapse:collapse}th{color:var(--mu);font:600 12px var(--hd);letter-spacing:.1em;text-transform:uppercase}td,th{padding:9px 8px;border-bottom:1px solid var(--bd);text-align:left;font-size:15px}
+tr:nth-child(2) td:first-child{color:#ffd60a;font-weight:700}tr:nth-child(3) td:first-child{color:#cfd8ee;font-weight:700}tr:nth-child(4) td:first-child{color:#e8a06a;font-weight:700}
+tr:nth-child(2) td{background:linear-gradient(90deg,rgba(255,214,10,.1),transparent)}
+.tag{display:inline-block;padding:3px 10px;border-radius:99px;font:700 11px var(--hd);letter-spacing:.06em;background:linear-gradient(135deg,var(--ok),var(--ac2));color:#04201a}
+.wrap{overflow-x:auto}.q{border:1px dashed var(--bd);border-radius:14px;padding:14px;margin:12px 0;background:rgba(7,11,26,.35)}
+video{width:100%;border-radius:14px;background:#000;margin-top:12px}#qr{background:#fff;padding:10px;display:inline-block;border-radius:14px;box-shadow:0 0 30px rgba(34,211,238,.3)}
+.hero p{margin:0 0 6px;color:var(--mu)}
+footer{position:relative;max-width:860px;margin:0 auto;padding:8px 16px calc(34px + env(safe-area-inset-bottom));text-align:center;color:var(--mu);font-size:13px;letter-spacing:.03em}
+footer b{color:var(--ac);font:700 15px var(--hd)}footer i{display:block;margin-top:4px;font-style:normal;font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+@keyframes pulse{50%{transform:scale(1.08);filter:drop-shadow(0 0 18px rgba(255,214,10,.95))}}@keyframes rise{from{opacity:0;transform:translateY(10px)}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media(max-width:520px){h1{font-size:28px}.code{font-size:40px}}
+</style></head><body><div class="top"><svg viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd60a"/><stop offset="1" stop-color="#ff9f1c"/></linearGradient></defs><path fill="url(#g)" d="M13.5 1 4 13.5h6.2L9 23l10-13.2h-6.4z"/></svg><div><b>VIDYUT</b><small>MITS GWALIOR · TECH CLUB</small></div></div><main id="app"></main><footer><b>V</b>alue <b>I</b>s <b>D</b>oubled when <b>Y</b>outh <b>U</b>nderstand <b>T</b>echnology<i>Vidyut Club · MITS Gwalior</i></footer>
+<script>
+const $=s=>document.querySelector(s),app=$('#app');
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>(window.crypto&&crypto.randomUUID)?crypto.randomUUID():Array.from({length:4},()=>Math.random().toString(36).slice(2)).join('');
+let pid;try{pid=localStorage.pid||(localStorage.pid=uid())}catch(e){pid=uid()}
+let ws,hello=null,name=(()=>{try{return localStorage.qname||''}catch(e){return ''}})(),pw='',view=null,draft=null,scanStream=null,qrBox=null,qrFor='',isHost=false;
+
+function connect(){
+  ws=new WebSocket((location.protocol==='https:'?'wss':'ws')+'://'+location.host);
+  ws.onopen=()=>hello&&hello();
+  ws.onmessage=e=>{const m=JSON.parse(e.data);
+    if(m.t==='error'){if(m.msg==='Wrong password'){pw='';sessionStorage.removeItem('pw');hello=null}const el=$('#err');if(el)el.textContent=m.msg;else alert(m.msg);return}
+    if(m.t==='admin_ok'){sessionStorage.pw=pw;hostHome();return}
+    if(m.t==='list'){return hostList(m.items)}
+    view=m;m.t==='host'?hostRender():playRender()};
+  ws.onclose=()=>setTimeout(connect,1500);
+}
+const tx=o=>ws.readyState===1&&ws.send(JSON.stringify(o));
+function route(){stopScan();view=null;hello=null;isHost=location.hash==='#host';isHost?hostLogin():home(location.hash.slice(1).toUpperCase())}
+addEventListener('hashchange',route);
+
+/* ---- participant ---- */
+function home(pre){
+  app.innerHTML=`<div class="hero"><h1>Vidyut <span>Quiz</span></h1><p>Enter your name and the code on the big screen to join the battle ⚡</p></div><div class="card"><label class="mu">Your name</label><input id="nm" maxlength="24" value="${esc(name)}" placeholder="e.g. Aarav"><div style="height:10px"></div>
+  <label class="mu">Quiz code</label><input id="cd" maxlength="5" value="${esc(pre||'')}" placeholder="ABCDE" style="text-transform:uppercase;letter-spacing:.2em;font-weight:700">
+  <div class="row" style="margin-top:14px"><button id="go">Join</button><button class="sec" id="scan">📷 Scan QR</button></div><div id="scanbox"></div><p class="mu" id="err"></p></div>`;
+  $('#go').onclick=()=>{const c=$('#cd').value.trim().toUpperCase(),n=$('#nm').value.trim();
+    if(!n)return $('#err').textContent='Please enter your name.';if(!/^[A-Z0-9]{5}$/.test(c))return $('#err').textContent='Code must be 5 characters.';
+    name=n;try{localStorage.qname=n}catch(e){}stopScan();hello=()=>tx({t:'join',code:c,name:n,pid});hello()};
+  $('#scan').onclick=startScan;
+}
+function playRender(){
+  const v=view,ans=v.mine?.[v.cur];
+  let h=`<div class="row"><h2 class="grow">${esc(v.title)}</h2><span class="mu">${esc(v.name)}</span></div>`;
+  if(v.status==='ended')h+=`<div class="card"><h2>🏁 Quiz finished</h2>${boardHTML(v.board,true)}</div>`;
+  else if(v.cur<0)h+=`<div class="card"><h2>Waiting for the host to start…</h2><p class="mu">You're in! The first question appears when the host is ready.</p></div>`;
+  else{const rev=v.rev,locked=ans||rev!==null;
+    h+=`<div class="card"><p class="mu">Question ${v.cur+1} of ${v.n}</p><h2>${esc(v.q.q)}</h2>`+v.q.o.map((o,i)=>{let cl='opt';if(ans&&ans.c===i)cl+=' sel';if(rev!==null){if(i===rev)cl+=' ok';else if(ans&&ans.c===i)cl+=' no'}
+      return `<button class="${cl}" data-i="${i}" ${locked?'disabled':''}>${'ABCDEF'[i]}. ${esc(o)}</button>`}).join('');
+    h+=ans?`<p class="mu">✅ Answer locked in. Wait for the next question.</p>`:rev!==null?`<p class="mu">Time's up for this question.</p>`:'';
+    if(rev!==null&&ans)h+=`<p><b>${ans.c===rev?'🎉 Correct!':'❌ Not quite.'}</b></p>`;h+='</div>';
+    if(rev!==null)h+=`<div class="card"><h2>Leaderboard</h2>${boardHTML(v.board,false)}</div>`}
+  app.innerHTML=h;app.querySelectorAll('.opt').forEach(b=>b.onclick=()=>tx({t:'answer',i:+b.dataset.i}));
+}
+function boardHTML(b,all){if(!b?.length)return '<p class="mu">No scores yet.</p>';const me=b.findIndex(r=>r.id===pid);
+  return `<div class="wrap"><table><tr><th>#</th><th>Name</th><th>Score</th></tr>${b.slice(0,all?50:10).map((r,i)=>`<tr ${r.id===pid?'style="font-weight:700"':''}><td>${i+1}</td><td>${esc(r.name)}</td><td>${r.score}</td></tr>`).join('')}</table></div>${me>=10&&!all?`<p class="mu">You: #${me+1} · ${b[me].score}</p>`:''}`}
+async function startScan(){const er=$('#err');
+  try{scanStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}})}catch{er.textContent='Camera unavailable (needs HTTPS or localhost). Type the code instead.';return}
+  $('#scanbox').innerHTML='<video id="vid" playsinline muted></video>';const v=$('#vid');v.srcObject=scanStream;await v.play();
+  const cv=document.createElement('canvas'),cx=cv.getContext('2d',{willReadFrequently:true});
+  (function tick(){if(!scanStream)return;if(v.videoWidth){cv.width=v.videoWidth;cv.height=v.videoHeight;cx.drawImage(v,0,0);
+    const r=jsQR(cx.getImageData(0,0,cv.width,cv.height).data,cv.width,cv.height);
+    if(r){const m=(r.data.split('#').pop()||'').trim().toUpperCase();if(/^[A-Z0-9]{5}$/.test(m)){$('#cd').value=m;stopScan();$('#scanbox').innerHTML='';er.textContent='Code scanned. Enter your name and join.';return}}}
+    requestAnimationFrame(tick)})()}
+function stopScan(){if(scanStream){scanStream.getTracks().forEach(t=>t.stop());scanStream=null}}
+
+/* ---- host ---- */
+function hostLogin(){
+  app.innerHTML=`<h1>Vidyut <span>Quiz</span> · Host</h1><div class="card"><label class="mu">Admin password</label><input id="pw" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Enter admin password"><div class="row" style="margin-top:12px"><button id="go">Sign in</button></div><p class="mu" id="err"></p></div>`;
+  const go=()=>{pw=$('#pw').value;hello=()=>tx({t:'admin',pw});hello()};$('#go').onclick=go;$('#pw').onkeydown=e=>{if(e.key==='Enter')go()};
+  $('#pw').focus();
+}
+function hostHome(){hello=()=>{tx({t:'admin',pw})};app.innerHTML=`<h1>Vidyut <span>Quiz</span> · Host</h1><p class="mu">Create a quiz, share the code or QR, and control every question.</p><div class="card"><button id="new">+ Create quiz</button></div><div class="card"><h2>Your quizzes</h2><div id="list" class="mu">Loading…</div></div>`;
+  $('#new').onclick=()=>{draft={title:'',qs:[{q:'',o:['','','',''],a:0}]};editor()};tx({t:'list'})}
+function hostList(items){const el=$('#list');if(!el)return;el.innerHTML=items.length?items.map(i=>`<div class="row" style="margin:6px 0"><b class="grow">${esc(i.title)}</b><span class="mu">${i.code} · ${i.status}</span><button class="sec" data-c="${i.code}">Open</button></div>`).join(''):'No quizzes yet.';
+  el.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>openQuiz(b.dataset.c))}
+function openQuiz(c){hello=()=>{tx({t:'admin',pw});tx({t:'open',code:c})};tx({t:'open',code:c})}
+function editor(){
+  app.innerHTML=`<h1>Create quiz</h1><div class="card"><input id="t" placeholder="Quiz title" value="${esc(draft.title)}"></div><div id="qs"></div><div class="row"><button class="sec" id="add">+ Add question</button><button id="launch">Launch quiz</button><button class="sec" id="back">Cancel</button></div><p class="mu" id="err"></p>`;
+  const paint=()=>{$('#qs').innerHTML=draft.qs.map((q,i)=>`<div class="card"><div class="row"><b class="grow">Question ${i+1}</b>${draft.qs.length>1?`<button class="sec" data-del="${i}">Remove</button>`:''}</div><textarea rows="2" data-q="${i}" placeholder="Question text">${esc(q.q)}</textarea>
+    ${q.o.map((o,j)=>`<div class="row" style="margin-top:8px"><input type="radio" name="r${i}" data-r="${i}:${j}" ${q.a===j?'checked':''} style="width:auto"><input class="grow" data-o="${i}:${j}" placeholder="Option ${'ABCD'[j]}" value="${esc(o)}"></div>`).join('')}<p class="mu">Select the radio button next to the correct option.</p></div>`).join('');
+    app.querySelectorAll('[data-q]').forEach(e=>e.oninput=()=>draft.qs[+e.dataset.q].q=e.value);
+    app.querySelectorAll('[data-o]').forEach(e=>e.oninput=()=>{const[a,b]=e.dataset.o.split(':');draft.qs[a].o[b]=e.value});
+    app.querySelectorAll('[data-r]').forEach(e=>e.onchange=()=>{const[a,b]=e.dataset.r.split(':');draft.qs[a].a=+b});
+    app.querySelectorAll('[data-del]').forEach(e=>e.onclick=()=>{draft.qs.splice(+e.dataset.del,1);paint()})};
+  paint();$('#t').oninput=e=>draft.title=e.target.value;$('#add').onclick=()=>{draft.qs.push({q:'',o:['','','',''],a:0});paint()};$('#back').onclick=hostHome;
+  $('#launch').onclick=()=>{const qs=draft.qs.map(q=>({q:q.q.trim(),o:q.o.map(x=>x.trim()),a:q.a}));
+    // keep correct index valid after dropping blank options
+    const fixed=qs.map(q=>{const keep=q.o.map((x,i)=>x?i:-1).filter(i=>i>=0);return{q:q.q,o:keep.map(i=>q.o[i]),a:keep.indexOf(q.a)}});
+    if(!draft.title.trim()||fixed.some(q=>!q.q||q.o.length<2||q.a<0)){$('#err').textContent='Add a title, and for each question the text, at least 2 options, and a filled-in correct answer.';return}
+    tx({t:'create',title:draft.title,qs:fixed})}
+}
+function hostRender(){
+  const v=view,n=v.qs.length,cur=v.cur,revd=v.rev===cur&&cur>=0;
+  let h=`<div class="row"><button class="sec" id="home">← All quizzes</button></div><h1>${esc(v.title)}</h1><div class="card"><div class="row"><div class="grow"><div class="mu">Join code</div><div class="code">${v.code}</div><div class="mu">${esc(location.origin)}/#${v.code}</div></div><div id="qr"></div></div></div>`;
+  h+=`<div class="card"><div class="row"><h2 class="grow">${v.status==='ended'?'Quiz ended':cur<0?'Lobby — waiting to start':`Question ${cur+1} of ${n}`}</h2><span class="mu">${v.rows.length} joined · ${cur>=0?v.per[cur].length+' answered':''}</span></div>`;
+  if(cur>=0&&v.status!=='ended'){const q=v.qs[cur];h+=`<p><b>${esc(q.q)}</b></p>`+q.o.map((o,i)=>`<div class="mu">${i===q.a?'✅':'•'} ${'ABCDEF'[i]}. ${esc(o)} — ${v.per[cur].filter(r=>r.c===i).length} votes</div>`).join('')}
+  h+='<div class="row" style="margin-top:14px">';
+  if(v.status!=='ended'){h+=`<button id="next">${cur<0?'▶ Start quiz':cur>=n-1?'Finish quiz':'Next question ▶'}</button>`;if(cur>=0&&!revd)h+=`<button class="sec" id="rev">Reveal answer &amp; leaderboard</button>`}
+  h+='</div></div>';
+  h+=`<div class="card"><h2>🏆 Live leaderboard</h2>${v.rows.length?`<div class="wrap"><table><tr><th>#</th><th>Name</th><th>Score</th></tr>${v.rows.map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.name)}</td><td>${r.score}</td></tr>`).join('')}</table></div>`:'<p class="mu">Nobody has joined yet.</p>'}</div>`;
+  h+=`<div class="card"><h2>⚡ Correct &amp; fastest, per question</h2>`+v.per.map((l,i)=>{if(i>cur&&v.status!=='ended')return '';const ok=l.filter(r=>r.ok);
+    return `<div class="q"><b>Q${i+1}. ${esc(v.qs[i].q)}</b>${ok.length?`<div style="margin:6px 0"><span class="tag">FIRST CORRECT</span> <b>${esc(ok[0].name)}</b> <span class="mu">(${(ok[0].ms/1000).toFixed(2)}s)</span></div>`:'<div class="mu">No correct answer yet.</div>'}${ok.length>1?`<div class="mu">Then: ${ok.slice(1).map(r=>esc(r.name)+' '+(r.ms/1000).toFixed(2)+'s').join(' · ')}</div>`:''}<div class="mu">${l.length} answered, ${ok.length} correct</div></div>`}).join('')+'</div>';
+  app.innerHTML=h;
+  if(qrFor!==v.code){qrBox=document.createElement('div');new QRCode(qrBox,{text:location.origin+'/#'+v.code,width:150,height:150});qrFor=v.code}
+  $('#qr').appendChild(qrBox);
+  $('#home').onclick=hostHome;const nx=$('#next');if(nx)nx.onclick=()=>{nx.disabled=true;tx({t:'next'})};const rv=$('#rev');if(rv)rv.onclick=()=>{rv.disabled=true;tx({t:'reveal'})};
+}
+connect();route();
+</script></body></html>
