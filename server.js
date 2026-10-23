@@ -65,6 +65,13 @@ wss.on('connection', ws => {
       if (m.t === 'list') return send(ws, { t: 'list', items: sessionList() });
       if (m.t === 'quizzes') return send(ws, { t: 'quizzes', items: quizList() });
       if (m.t === 'delete_quiz') { delete D.quizzes[m.id]; save(); return send(ws, { t: 'quizzes', items: quizList() }); }
+      if (m.t === 'relaunch' && S[m.code]) { // fresh run of the same quiz: new code, no players, no answers
+        const o = S[m.code]; let id = o.quizId;
+        if (!D.quizzes[id]) { id = crypto.randomUUID(); D.quizzes[id] = { id, title: o.title, qs: JSON.parse(JSON.stringify(o.qs)), updated: Date.now() }; o.quizId = id; }
+        const code = mkCode();
+        S[code] = { quizId: id, title: o.title, qs: JSON.parse(JSON.stringify(o.qs)), cur: -1, status: 'lobby', rev: null, qStart: {}, players: {} };
+        c.code = code; save(); return broadcast(code);
+      }
       if (m.t === 'delete_session') { delete S[m.code]; save(); return send(ws, { t: 'list', items: sessionList() }); }
       if (m.t === 'save_quiz' || m.t === 'launch') {
         let qz;
