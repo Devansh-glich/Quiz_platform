@@ -29,12 +29,13 @@ const send = (ws, o) => ws.readyState === 1 && ws.send(JSON.stringify(o));
 // Scoring: 1000 per correct answer + up to 500 speed bonus (server timestamps, measured from question start)
 function stats(s) {
   const per = s.qs.map((q, i) => Object.entries(s.players).filter(([, p]) => p.a[i]).map(([id, p]) => ({
-    id, name: p.name, c: p.a[i].c, ok: p.a[i].c === q.a, ms: Math.max(0, p.a[i].t - (s.qStart[i] || p.a[i].t))
-  })).sort((x, y) => x.ms - y.ms));
-  const rows = Object.entries(s.players).map(([id, p]) => ({
-    id, name: p.name,
-    score: per.reduce((t, l) => { const r = l.find(x => x.id === id); return t + (r && r.ok ? 1000 + Math.max(0, 500 - Math.round(r.ms / 100)) : 0); }, 0)
-  })).sort((a, b) => b.score - a.score);
+    id, name: p.name, c: p.a[i].c, ok: p.a[i].c === q.a, n: p.a[i].n || 0, ms: Math.max(0, p.a[i].t - (s.qStart[i] || p.a[i].t))
+  })).sort((x, y) => (x.n - y.n) || (x.ms - y.ms))); // n = order the server received the answer
+  const rows = Object.entries(s.players).map(([id, p]) => {
+    let score = 0, tms = 0;
+    per.forEach(l => { const r = l.find(x => x.id === id); if (r && r.ok) { score += 1000 + Math.max(0, 500 - Math.round(r.ms / 100)); tms += r.ms; } });
+    return { id, name: p.name, score, tms };
+  }).sort((a, b) => (b.score - a.score) || (a.tms - b.tms)); // equal score -> lower total answer time ranks higher
   return { per, rows };
 }
 function playerView(s, pid) {
@@ -45,15 +46,23 @@ function playerView(s, pid) {
   return out;
 }
 const hostView = (code, s) => ({ t: 'host', code, title: s.title, qs: s.qs, cur: s.cur, status: s.status, rev: s.rev, ...stats(s) });
-function broadcast(code) {
+// broadcast(code): everyone. broadcast(code, pid): host(s) + only that player (others' screens are NOT rebuilt, so taps are never lost)
+function broadcast(code, onlyPid) {
   const s = S[code]; if (!s) return;
   wss.clients.forEach(ws => { const c = ws.ctx; if (!c || c.code !== code) return;
-    send(ws, c.admin ? hostView(code, s) : playerView(s, c.pid)); });
+    if (c.admin) send(ws, hostView(code, s)); else if (onlyPid === undefined || c.pid === onlyPid) send(ws, playerView(s, c.pid)); });
+}
+const hostTimers = {}; // many answers arriving together -> one host update (max ~7/sec)
+function pushHost(code) {
+  if (hostTimers[code]) return;
+  hostTimers[code] = setTimeout(() => { delete hostTimers[code]; const s = S[code]; if (!s) return;
+    wss.clients.forEach(ws => { const c = ws.ctx; if (c && c.admin && c.code === code) send(ws, hostView(code, s)); }); }, 150);
 }
 const safeEq = (a, b) => { const x = Buffer.from(String(a)), y = Buffer.from(String(b)); return x.length === y.length && crypto.timingSafeEqual(x, y); };
 
+setInterval(() => wss.clients.forEach(ws => { if (!ws.alive) return ws.terminate(); ws.alive = false; ws.ping(); }), 25000); // drop dead sockets, keep proxies happy
 wss.on('connection', ws => {
-  ws.ctx = {};
+  ws.ctx = {}; ws.alive = true; ws.on('pong', () => { ws.alive = true; });
   ws.on('message', raw => {
     let m; try { m = JSON.parse(raw); } catch { return; }
     const c = ws.ctx, s = S[c.code];
@@ -65,6 +74,13 @@ wss.on('connection', ws => {
       if (m.t === 'list') return send(ws, { t: 'list', items: sessionList() });
       if (m.t === 'quizzes') return send(ws, { t: 'quizzes', items: quizList() });
       if (m.t === 'delete_quiz') { delete D.quizzes[m.id]; save(); return send(ws, { t: 'quizzes', items: quizList() }); }
+      if (m.t === 'relaunch' && S[m.code]) { // fresh run of the same quiz: new code, no players, no answers
+        const o = S[m.code]; let id = o.quizId;
+        if (!D.quizzes[id]) { id = crypto.randomUUID(); D.quizzes[id] = { id, title: o.title, qs: JSON.parse(JSON.stringify(o.qs)), updated: Date.now() }; o.quizId = id; }
+        const code = mkCode();
+        S[code] = { quizId: id, title: o.title, qs: JSON.parse(JSON.stringify(o.qs)), cur: -1, status: 'lobby', rev: null, qStart: {}, players: {} };
+        c.code = code; save(); return broadcast(code);
+      }
       if (m.t === 'delete_session') { delete S[m.code]; save(); return send(ws, { t: 'list', items: sessionList() }); }
       if (m.t === 'save_quiz' || m.t === 'launch') {
         let qz;
@@ -92,12 +108,13 @@ wss.on('connection', ws => {
       if (!js) return send(ws, { t: 'error', msg: 'No quiz found with that code.' });
       if (!name || !pid) return send(ws, { t: 'error', msg: 'Name required.' });
       js.players[pid] = js.players[pid] || { name, a: {} }; js.players[pid].name = name;
-      ws.ctx = { code, pid }; save(); return broadcast(code);
+      ws.ctx = { code, pid }; save(); return broadcast(code, pid);
     }
     if (m.t === 'answer' && s && c.pid) {
       const p = s.players[c.pid], i = m.i | 0; // one answer per question, enforced here
       if (!p || s.status !== 'live' || s.cur < 0 || s.rev === s.cur || p.a[s.cur] || i < 0 || i >= s.qs[s.cur].o.length) return;
-      p.a[s.cur] = { c: i, t: Date.now() }; save(); broadcast(c.code);
+      p.a[s.cur] = { c: i, t: Date.now(), n: s.seq = (s.seq || 0) + 1 }; save();
+      send(ws, playerView(s, c.pid)); pushHost(c.code);
     }
   });
 });
