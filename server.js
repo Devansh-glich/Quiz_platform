@@ -3,8 +3,23 @@ const express = require('express'), http = require('http'), fs = require('fs'), 
 const { WebSocketServer } = require('ws');
 const PORT = process.env.PORT || 3000, ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
 const DB = path.join(__dirname, 'data.json');
-let S = {}; try { S = JSON.parse(fs.readFileSync(DB)); } catch {}
-const save = () => fs.writeFile(DB, JSON.stringify(S), () => {});
+// Storage: D.quizzes = saved quiz templates, D.sessions = every launched run (own code, players, answers).
+let D = { quizzes: {}, sessions: {} };
+try { const raw = JSON.parse(fs.readFileSync(DB)); D = (raw.sessions || raw.quizzes) ? { quizzes: raw.quizzes || {}, sessions: raw.sessions || {} } : { quizzes: {}, sessions: raw }; } catch {}
+const S = D.sessions;
+// Debounced + atomic save: many answers arriving together -> one write; temp file + rename can't leave a half-written data.json
+let timer = null;
+function writeNow() { clearTimeout(timer); timer = null; try { fs.writeFileSync(DB + '.tmp', JSON.stringify(D)); fs.renameSync(DB + '.tmp', DB); } catch (e) { console.error('save failed:', e.message); } }
+const save = () => { if (!timer) timer = setTimeout(writeNow, 300); };
+['SIGINT', 'SIGTERM'].forEach(sig => process.on(sig, () => { writeNow(); process.exit(); }));
+const quizList = () => Object.values(D.quizzes).sort((a, b) => b.updated - a.updated);
+const sessionList = () => Object.entries(S).map(([code, q]) => ({ code, title: q.title, status: q.status, players: Object.keys(q.players).length }));
+function cleanQuiz(m) {
+  const qs = Array.isArray(m.qs) ? m.qs.slice(0, 100).map(q => ({ q: String(q.q || '').trim().slice(0, 300),
+    o: (Array.isArray(q.o) ? q.o : []).map(x => String(x).trim().slice(0, 150)).filter(Boolean).slice(0, 6), a: q.a | 0 })) : [];
+  const title = String(m.title || '').trim().slice(0, 120);
+  return (!title || !qs.length || qs.some(q => !q.q || q.o.length < 2 || q.a < 0 || q.a >= q.o.length)) ? null : { title, qs };
+}
 const app = express(); app.use(express.static(path.join(__dirname, 'public')));
 const server = http.createServer(app), wss = new WebSocketServer({ server, maxPayload: 2e5 });
 const CH = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
@@ -47,13 +62,19 @@ wss.on('connection', ws => {
       return;
     }
     if (c.admin) {
-      if (m.t === 'list') return send(ws, { t: 'list', items: Object.entries(S).map(([code, q]) => ({ code, title: q.title, status: q.status })) });
-      if (m.t === 'create') {
-        const qs = Array.isArray(m.qs) ? m.qs.slice(0, 100).map(q => ({ q: String(q.q || '').trim().slice(0, 300),
-          o: (Array.isArray(q.o) ? q.o : []).map(x => String(x).trim().slice(0, 150)).filter(Boolean).slice(0, 6), a: q.a | 0 })) : [];
-        const title = String(m.title || '').trim().slice(0, 120);
-        if (!title || !qs.length || qs.some(q => !q.q || q.o.length < 2 || q.a < 0 || q.a >= q.o.length)) return send(ws, { t: 'error', msg: 'Invalid quiz' });
-        const code = mkCode(); S[code] = { title, qs, cur: -1, status: 'lobby', rev: null, qStart: {}, players: {} };
+      if (m.t === 'list') return send(ws, { t: 'list', items: sessionList() });
+      if (m.t === 'quizzes') return send(ws, { t: 'quizzes', items: quizList() });
+      if (m.t === 'delete_quiz') { delete D.quizzes[m.id]; save(); return send(ws, { t: 'quizzes', items: quizList() }); }
+      if (m.t === 'delete_session') { delete S[m.code]; save(); return send(ws, { t: 'list', items: sessionList() }); }
+      if (m.t === 'save_quiz' || m.t === 'launch') {
+        let qz;
+        if (m.t === 'launch') qz = D.quizzes[m.id];
+        else { const v = cleanQuiz(m); if (!v) return send(ws, { t: 'error', msg: 'Invalid quiz' });
+          const id = D.quizzes[m.id] ? m.id : crypto.randomUUID(); qz = D.quizzes[id] = { id, ...v, updated: Date.now() }; }
+        if (!qz) return;
+        if (m.t === 'save_quiz' && !m.launch) { save(); return send(ws, { t: 'saved' }); }
+        const code = mkCode(); // every launch is a fresh run: new code, no players, no answers
+        S[code] = { quizId: qz.id, title: qz.title, qs: JSON.parse(JSON.stringify(qz.qs)), cur: -1, status: 'lobby', rev: null, qStart: {}, players: {} };
         c.code = code; save(); return broadcast(code);
       }
       if (m.t === 'open' && S[m.code]) { c.code = m.code; return broadcast(m.code); }

@@ -57,6 +57,8 @@ function connect(){
     if(m.t==='error'){if(m.msg==='Wrong password'){pw='';sessionStorage.removeItem('pw');hello=null}const el=$('#err');if(el)el.textContent=m.msg;else alert(m.msg);return}
     if(m.t==='admin_ok'){sessionStorage.pw=pw;hostHome();return}
     if(m.t==='list'){return hostList(m.items)}
+    if(m.t==='quizzes'){return hostQuizzes(m.items)}
+    if(m.t==='saved'){hostHome();return}
     view=m;m.t==='host'?hostRender():playRender()};
   ws.onclose=()=>setTimeout(connect,1500);
 }
@@ -105,13 +107,21 @@ function hostLogin(){
   const go=()=>{pw=$('#pw').value;hello=()=>tx({t:'admin',pw});hello()};$('#go').onclick=go;$('#pw').onkeydown=e=>{if(e.key==='Enter')go()};
   $('#pw').focus();
 }
-function hostHome(){hello=()=>{tx({t:'admin',pw})};app.innerHTML=`<h1>Vidyut <span>Quiz</span> · Host</h1><p class="mu">Create a quiz, share the code or QR, and control every question.</p><div class="card"><button id="new">+ Create quiz</button></div><div class="card"><h2>Your quizzes</h2><div id="list" class="mu">Loading…</div></div>`;
-  $('#new').onclick=()=>{draft={title:'',qs:[{q:'',o:['','','',''],a:0}]};editor()};tx({t:'list'})}
-function hostList(items){const el=$('#list');if(!el)return;el.innerHTML=items.length?items.map(i=>`<div class="row" style="margin:6px 0"><b class="grow">${esc(i.title)}</b><span class="mu">${i.code} · ${i.status}</span><button class="sec" data-c="${i.code}">Open</button></div>`).join(''):'No quizzes yet.';
-  el.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>openQuiz(b.dataset.c))}
+let QZ=[];
+function hostHome(){hello=()=>tx({t:'admin',pw});app.innerHTML=`<h1>Vidyut <span>Quiz</span> · Host</h1><p class="mu">Save a quiz once, then launch it as many times as you like.</p><div class="card"><div class="row"><h2 class="grow">📚 My quizzes</h2><button id="new">+ Create quiz</button></div><div id="qz" class="mu">Loading…</div></div><div class="card"><h2>🕘 Past &amp; live sessions</h2><div id="list" class="mu">Loading…</div></div>`;
+  $('#new').onclick=()=>{draft={title:'',qs:[{q:'',o:['','','',''],a:0}]};editor()};tx({t:'quizzes'});tx({t:'list'})}
+function hostQuizzes(items){QZ=items;const el=$('#qz');if(!el)return;
+  el.innerHTML=items.length?items.map(z=>`<div class="row" style="margin:8px 0"><div class="grow"><b>${esc(z.title)}</b><div class="mu">${z.qs.length} questions</div></div><button data-l="${z.id}">🚀 Launch</button><button class="sec" data-e="${z.id}">Edit</button><button class="sec" data-d="${z.id}">Delete</button></div>`).join(''):'No saved quizzes yet. Create one!';
+  el.querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{b.disabled=true;tx({t:'launch',id:b.dataset.l})});
+  el.querySelectorAll('[data-e]').forEach(b=>b.onclick=()=>{const z=QZ.find(x=>x.id===b.dataset.e);draft={id:z.id,title:z.title,qs:z.qs.map(q=>({q:q.q,o:[...q.o,'','','',''].slice(0,Math.max(4,q.o.length)),a:q.a}))};editor()});
+  el.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{if(confirm('Delete this saved quiz? Past sessions are kept.'))tx({t:'delete_quiz',id:b.dataset.d})})}
+function hostList(items){const el=$('#list');if(!el)return;
+  el.innerHTML=items.length?items.map(i=>`<div class="row" style="margin:6px 0"><b class="grow">${esc(i.title)}</b><span class="mu">${i.code} · ${i.status} · ${i.players} players</span><button class="sec" data-c="${i.code}">Open</button><button class="sec" data-x="${i.code}">✕</button></div>`).join(''):'No sessions yet.';
+  el.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>openQuiz(b.dataset.c));
+  el.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{if(confirm('Delete this session and its results?'))tx({t:'delete_session',code:b.dataset.x})})}
 function openQuiz(c){hello=()=>{tx({t:'admin',pw});tx({t:'open',code:c})};tx({t:'open',code:c})}
 function editor(){
-  app.innerHTML=`<h1>Create quiz</h1><div class="card"><input id="t" placeholder="Quiz title" value="${esc(draft.title)}"></div><div id="qs"></div><div class="row"><button class="sec" id="add">+ Add question</button><button id="launch">Launch quiz</button><button class="sec" id="back">Cancel</button></div><p class="mu" id="err"></p>`;
+  app.innerHTML=`<h1>Create quiz</h1><div class="card"><input id="t" placeholder="Quiz title" value="${esc(draft.title)}"></div><div id="qs"></div><div class="row"><button class="sec" id="add">+ Add question</button><button class="sec" id="save">💾 Save</button><button id="launch">🚀 Save &amp; launch</button><button class="sec" id="back">Cancel</button></div><p class="mu" id="err"></p>`;
   const paint=()=>{$('#qs').innerHTML=draft.qs.map((q,i)=>`<div class="card"><div class="row"><b class="grow">Question ${i+1}</b>${draft.qs.length>1?`<button class="sec" data-del="${i}">Remove</button>`:''}</div><textarea rows="2" data-q="${i}" placeholder="Question text">${esc(q.q)}</textarea>
     ${q.o.map((o,j)=>`<div class="row" style="margin-top:8px"><input type="radio" name="r${i}" data-r="${i}:${j}" ${q.a===j?'checked':''} style="width:auto"><input class="grow" data-o="${i}:${j}" placeholder="Option ${'ABCD'[j]}" value="${esc(o)}"></div>`).join('')}<p class="mu">Select the radio button next to the correct option.</p></div>`).join('');
     app.querySelectorAll('[data-q]').forEach(e=>e.oninput=()=>draft.qs[+e.dataset.q].q=e.value);
@@ -119,11 +129,11 @@ function editor(){
     app.querySelectorAll('[data-r]').forEach(e=>e.onchange=()=>{const[a,b]=e.dataset.r.split(':');draft.qs[a].a=+b});
     app.querySelectorAll('[data-del]').forEach(e=>e.onclick=()=>{draft.qs.splice(+e.dataset.del,1);paint()})};
   paint();$('#t').oninput=e=>draft.title=e.target.value;$('#add').onclick=()=>{draft.qs.push({q:'',o:['','','',''],a:0});paint()};$('#back').onclick=hostHome;
-  $('#launch').onclick=()=>{const qs=draft.qs.map(q=>({q:q.q.trim(),o:q.o.map(x=>x.trim()),a:q.a}));
+  const submit=launch=>{const qs=draft.qs.map(q=>({q:q.q.trim(),o:q.o.map(x=>x.trim()),a:q.a}));
     // keep correct index valid after dropping blank options
     const fixed=qs.map(q=>{const keep=q.o.map((x,i)=>x?i:-1).filter(i=>i>=0);return{q:q.q,o:keep.map(i=>q.o[i]),a:keep.indexOf(q.a)}});
     if(!draft.title.trim()||fixed.some(q=>!q.q||q.o.length<2||q.a<0)){$('#err').textContent='Add a title, and for each question the text, at least 2 options, and a filled-in correct answer.';return}
-    tx({t:'create',title:draft.title,qs:fixed})}
+    tx({t:'save_quiz',id:draft.id,title:draft.title,qs:fixed,launch})};$('#launch').onclick=()=>submit(true);$('#save').onclick=()=>submit(false)
 }
 function hostRender(){
   const v=view,n=v.qs.length,cur=v.cur,revd=v.rev===cur&&cur>=0;
