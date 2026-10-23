@@ -142,6 +142,7 @@ function hostRender(){
   if(cur>=0&&v.status!=='ended'){const q=v.qs[cur];h+=`<p><b>${esc(q.q)}</b></p>`+q.o.map((o,i)=>`<div class="mu">${i===q.a?'✅':'•'} ${'ABCDEF'[i]}. ${esc(o)} — ${v.per[cur].filter(r=>r.c===i).length} votes</div>`).join('')}
   h+='<div class="row" style="margin-top:14px">';
   if(v.status!=='ended'){h+=`<button id="next">${cur<0?'▶ Start quiz':cur>=n-1?'Finish quiz':'Next question ▶'}</button>`;if(cur>=0&&!revd)h+=`<button class="sec" id="rev">Reveal answer &amp; leaderboard</button>`}
+  h+=`<button id="again" class="${v.status==='ended'?'':'sec'}">🔁 Launch again with new players</button>`;
   h+='</div></div>';
   h+=`<div class="card"><h2>🏆 Live leaderboard</h2>${v.rows.length?`<div class="wrap"><table><tr><th>#</th><th>Name</th><th>Score</th></tr>${v.rows.map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.name)}</td><td>${r.score}</td></tr>`).join('')}</table></div>`:'<p class="mu">Nobody has joined yet.</p>'}</div>`;
   h+=`<div class="card"><h2>⚡ Correct &amp; fastest, per question</h2>`+v.per.map((l,i)=>{if(i>cur&&v.status!=='ended')return '';const ok=l.filter(r=>r.ok);
@@ -149,7 +150,7 @@ function hostRender(){
   app.innerHTML=h;
   if(qrFor!==v.code){qrBox=document.createElement('div');new QRCode(qrBox,{text:location.origin+'/#'+v.code,width:150,height:150});qrFor=v.code}
   $('#qr').appendChild(qrBox);
-  $('#home').onclick=hostHome;const nx=$('#next');if(nx)nx.onclick=()=>{nx.disabled=true;tx({t:'next'})};const rv=$('#rev');if(rv)rv.onclick=()=>{rv.disabled=true;tx({t:'reveal'})};
+  $('#home').onclick=hostHome;const ag=$('#again');if(ag)ag.onclick=()=>{if(v.status==='ended'||confirm('Start a fresh run with a new code? This session stays saved.')){ag.disabled=true;tx({t:'relaunch',code:v.code})}};const nx=$('#next');if(nx)nx.onclick=()=>{nx.disabled=true;tx({t:'next'})};const rv=$('#rev');if(rv)rv.onclick=()=>{rv.disabled=true;tx({t:'reveal'})};
 }
 connect();route();
 </script></body></html>
