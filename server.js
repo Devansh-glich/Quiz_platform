@@ -26,23 +26,28 @@ const CH = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
 const mkCode = () => { let c; do c = Array.from({ length: 5 }, () => CH[crypto.randomInt(CH.length)]).join(''); while (S[c]); return c; };
 const send = (ws, o) => ws.readyState === 1 && ws.send(JSON.stringify(o));
 
-// Scoring: 1000 per correct answer + up to 500 speed bonus (server timestamps, measured from question start)
+// Scoring (Vidyut currency): 1st correct 1000, 2nd 800, 3rd 700, later correct 500, wrong answer 100. 'First' = arrival order at the server.
 function stats(s) {
   const per = s.qs.map((q, i) => Object.entries(s.players).filter(([, p]) => p.a[i]).map(([id, p]) => ({
     id, name: p.name, c: p.a[i].c, ok: p.a[i].c === q.a, n: p.a[i].n || 0, ms: Math.max(0, p.a[i].t - (s.qStart[i] || p.a[i].t))
   })).sort((x, y) => (x.n - y.n) || (x.ms - y.ms))); // n = order the server received the answer
+  const PTS = [1000, 800, 700], LATE = 500, WRONG = 100; // Vidyut currency
+  per.forEach(l => { let k = 0; l.forEach(r => { r.pts = r.ok ? (PTS[k++] ?? LATE) : WRONG; }); });
   const rows = Object.entries(s.players).map(([id, p]) => {
-    let score = 0, tms = 0;
-    per.forEach(l => { const r = l.find(x => x.id === id); if (r && r.ok) { score += 1000 + Math.max(0, 500 - Math.round(r.ms / 100)); tms += r.ms; } });
-    return { id, name: p.name, score, tms };
-  }).sort((a, b) => (b.score - a.score) || (a.tms - b.tms)); // equal score -> lower total answer time ranks higher
+    let score = 0, tms = 0, cor = 0;
+    per.forEach(l => { const r = l.find(x => x.id === id); if (r) { score += r.pts; if (r.ok) { tms += r.ms; cor++; } } });
+    return { id, name: p.name, score, tms, cor };
+  }).sort((a, b) => (b.score - a.score) || (b.cor - a.cor) || (a.tms - b.tms)); // tie -> more correct answers, then lower total time
   return { per, rows };
 }
 function playerView(s, pid) {
   const cur = s.cur, p = s.players[pid] || { a: {} }, live = cur >= 0 && s.status !== 'ended';
   const out = { t: 'play', title: s.title, n: s.qs.length, cur, status: s.status, name: p.name, mine: p.a,
     q: live ? { q: s.qs[cur].q, o: s.qs[cur].o } : null, rev: live && s.rev === cur ? s.qs[cur].a : null };
-  if (s.status === 'ended' || out.rev !== null) out.board = stats(s).rows.slice(0, 50);
+  if (s.status === 'ended' || out.rev !== null) {
+    const st = stats(s); out.board = st.rows.slice(0, 50);
+    if (live) out.pts = (st.per[cur].find(r => r.id === pid) || {}).pts ?? 0; // points earned on this question
+  }
   return out;
 }
 const hostView = (code, s) => ({ t: 'host', code, title: s.title, qs: s.qs, cur: s.cur, status: s.status, rev: s.rev, ...stats(s) });

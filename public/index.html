@@ -86,12 +86,12 @@ function playRender(){
     h+=`<div class="card"><p class="mu">Question ${v.cur+1} of ${v.n}</p><h2>${esc(v.q.q)}</h2>`+v.q.o.map((o,i)=>{let cl='opt';if(ans&&ans.c===i)cl+=' sel';if(rev!==null){if(i===rev)cl+=' ok';else if(ans&&ans.c===i)cl+=' no'}
       return `<button class="${cl}" data-i="${i}" ${locked?'disabled':''}>${'ABCDEF'[i]}. ${esc(o)}</button>`}).join('');
     h+=ans?`<p class="mu">✅ Answer locked in. Wait for the next question.</p>`:rev!==null?`<p class="mu">Time's up for this question.</p>`:'';
-    if(rev!==null&&ans)h+=`<p><b>${ans.c===rev?'🎉 Correct!':'❌ Not quite.'}</b></p>`;h+='</div>';
+    if(rev!==null&&ans)h+=`<p><b>${ans.c===rev?'🎉 Correct!':'❌ Not quite.'}</b> <span class="tag">+${v.pts??0} ⚡</span></p>`;h+='</div>';
     if(rev!==null)h+=`<div class="card"><h2>Leaderboard</h2>${boardHTML(v.board,false)}</div>`}
   app.innerHTML=h;app.querySelectorAll('.opt').forEach(b=>b.onclick=()=>tx({t:'answer',i:+b.dataset.i}));
 }
 function boardHTML(b,all){if(!b?.length)return '<p class="mu">No scores yet.</p>';const me=b.findIndex(r=>r.id===pid);
-  return `<div class="wrap"><table><tr><th>#</th><th>Name</th><th>Score</th></tr>${b.slice(0,all?50:10).map((r,i)=>`<tr ${r.id===pid?'style="font-weight:700"':''}><td>${i+1}</td><td>${esc(r.name)}</td><td>${r.score}</td></tr>`).join('')}</table></div>${me>=10&&!all?`<p class="mu">You: #${me+1} · ${b[me].score}</p>`:''}`}
+  return `<div class="wrap"><table><tr><th>#</th><th>Name</th><th>Vidyut ⚡</th></tr>${b.slice(0,all?50:10).map((r,i)=>`<tr ${r.id===pid?'style="font-weight:700"':''}><td>${i+1}</td><td>${esc(r.name)}</td><td>${r.score}</td></tr>`).join('')}</table></div>${me>=10&&!all?`<p class="mu">You: #${me+1} · ${b[me].score}</p>`:''}`}
 async function startScan(){const er=$('#err');
   try{scanStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}})}catch{er.textContent='Camera unavailable (needs HTTPS or localhost). Type the code instead.';return}
   $('#scanbox').innerHTML='<video id="vid" playsinline muted></video>';const v=$('#vid');v.srcObject=scanStream;await v.play();
@@ -145,9 +145,9 @@ function hostRender(){
   if(v.status!=='ended'){h+=`<button id="next">${cur<0?'▶ Start quiz':cur>=n-1?'Finish quiz':'Next question ▶'}</button>`;if(cur>=0&&!revd)h+=`<button class="sec" id="rev">Reveal answer &amp; leaderboard</button>`}
   h+=`<button id="again" class="${v.status==='ended'?'':'sec'}">🔁 Launch again with new players</button>`;
   h+='</div></div>';
-  h+=`<div class="card"><h2>🏆 Live leaderboard</h2>${v.rows.length?`<div class="wrap"><table><tr><th>#</th><th>Name</th><th>Score</th></tr>${v.rows.map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.name)}</td><td>${r.score}</td></tr>`).join('')}</table></div>`:'<p class="mu">Nobody has joined yet.</p>'}</div>`;
+  h+=`<div class="card"><h2>🏆 Live leaderboard</h2>${v.rows.length?`<div class="wrap"><table><tr><th>#</th><th>Name</th><th>Vidyut ⚡</th></tr>${v.rows.map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.name)}</td><td>${r.score}</td></tr>`).join('')}</table></div>`:'<p class="mu">Nobody has joined yet.</p>'}</div>`;
   h+=`<div class="card"><h2>⚡ Correct &amp; fastest, per question</h2>`+v.per.map((l,i)=>{if(i>cur&&v.status!=='ended')return '';const ok=l.filter(r=>r.ok);
-    return `<div class="q"><b>Q${i+1}. ${esc(v.qs[i].q)}</b>${ok.length?`<div style="margin:6px 0"><span class="tag">FIRST CORRECT</span> <b>${esc(ok[0].name)}</b> <span class="mu">(${(ok[0].ms/1000).toFixed(2)}s)</span></div>`:'<div class="mu">No correct answer yet.</div>'}${ok.length>1?`<div class="mu">Then: ${ok.slice(1).map(r=>esc(r.name)+' '+(r.ms/1000).toFixed(2)+'s').join(' · ')}</div>`:''}<div class="mu">${l.length} answered, ${ok.length} correct</div></div>`}).join('')+'</div>';
+    return `<div class="q"><b>Q${i+1}. ${esc(v.qs[i].q)}</b>${ok.length?`<div style="margin:6px 0"><span class="tag">FIRST CORRECT</span> <b>${esc(ok[0].name)}</b> <span class="mu">(${(ok[0].ms/1000).toFixed(2)}s)</span> <b>+${ok[0].pts} ⚡</b></div>`:'<div class="mu">No correct answer yet.</div>'}${ok.length>1?`<div class="mu">Then: ${ok.slice(1).map(r=>esc(r.name)+' '+(r.ms/1000).toFixed(2)+'s (+'+r.pts+')').join(' · ')}</div>`:''}<div class="mu">${l.length} answered, ${ok.length} correct</div></div>`}).join('')+'</div>';
   app.innerHTML=h;
   if(qrFor!==v.code){qrBox=document.createElement('div');new QRCode(qrBox,{text:location.origin+'/#'+v.code,width:150,height:150});qrFor=v.code}
   $('#qr').appendChild(qrBox);
