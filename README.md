@@ -29,6 +29,10 @@ ADMIN_PASSWORD=choose-a-password npm start     # Windows PowerShell: $env:ADMIN_
 - **Anti-Cheat Tab Switch Monitor**:
   - Automatically records when participants switch tabs, minimize browsers, or leave the app on mobile or desktop.
   - Dedicated **Anti-Cheat Leaderboard** visible **only to the host**, classifying participants by risk level (`Clean 🟢`, `Warning 🟡`, `Suspicious 🔴`). Participants never see this data.
+- **Restart Past & Existing Sessions**:
+  - Restart any active, paused, or finished session with the **same room code and connected players**.
+  - All scores, answers, and tab switches reset to 0, and player screens automatically return to the Lobby waiting state without anyone needing to re-scan the QR code or type a new code.
+  - Can be triggered directly inside a running session or from the "Past & live sessions" list on the host dashboard.
 
 ## Scoring (Vidyut currency ⚡)
 Per question, ranked by the order answers reach the server: 1st correct = 1000, 2nd correct = 800, 3rd correct = 700, every later correct answer = 500, a wrong answer = 100, no answer = 0. Equal totals are ranked by more correct answers, then lower total answer time.

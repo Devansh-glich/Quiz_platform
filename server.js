@@ -99,6 +99,12 @@ wss.on('connection', ws => {
         S[code] = { quizId: id, title: o.title, qs: JSON.parse(JSON.stringify(o.qs)), cur: -1, status: 'lobby', rev: null, optLive: true, qStart: {}, players: {} };
         c.code = code; save(); return broadcast(code);
       }
+      if (m.t === 'restart_session' && S[m.code]) { // restart existing/past session: same code, keep connected players, clear answers/scores
+        const sess = S[m.code];
+        sess.cur = -1; sess.status = 'lobby'; sess.rev = null; sess.optLive = true; sess.qStart = {}; sess.seq = 0;
+        Object.values(sess.players).forEach(p => { p.a = {}; p.sw = 0; delete p.lastSw; });
+        c.code = m.code; save(); return broadcast(m.code);
+      }
       if (m.t === 'delete_session') { delete S[m.code]; save(); return send(ws, { t: 'list', items: sessionList() }); }
       if (m.t === 'save_quiz' || m.t === 'launch') {
         let qz;

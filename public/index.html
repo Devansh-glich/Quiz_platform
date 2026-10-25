@@ -290,8 +290,14 @@ function hostQuizzes(items){
 }
 function hostList(items){
   const el=$('#list');if(!el)return;
-  el.innerHTML=items.length?items.map(i=>`<div class="row" style="margin:6px 0"><b class="grow">${esc(i.title)}</b><span class="mu">${i.code} · ${i.status} · ${i.players} players</span><button class="sec" data-c="${i.code}">Open</button><button class="sec" data-x="${i.code}">✕</button></div>`).join(''):'No sessions yet.';
+  el.innerHTML=items.length?items.map(i=>`<div class="row" style="margin:6px 0"><b class="grow">${esc(i.title)}</b><span class="mu">${i.code} · ${i.status} · ${i.players} players</span><button class="sec" data-c="${i.code}">Open</button><button class="sec" data-r="${i.code}">🔄 Restart</button><button class="sec" data-x="${i.code}">✕</button></div>`).join(''):'No sessions yet.';
   el.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>openQuiz(b.dataset.c));
+  el.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{
+    if(confirm(`Restart session ${b.dataset.r}? Connected players stay in the room, scores/answers will be cleared, and quiz will return to the lobby.`)){
+      hello=()=>{tx({t:'admin',pw});tx({t:'restart_session',code:b.dataset.r})};
+      tx({t:'restart_session',code:b.dataset.r});
+    }
+  });
   el.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{if(confirm('Delete this session and its results?'))tx({t:'delete_session',code:b.dataset.x})});
 }
 function openQuiz(c){hello=()=>{tx({t:'admin',pw});tx({t:'open',code:c})};tx({t:'open',code:c})}
@@ -373,7 +379,8 @@ function hostRender(){
       }
     }
   }
-  h+=`<button id="again" class="${v.status==='ended'?'':'sec'}">🔁 Launch again with new players</button>`;
+  h+=`<button id="restart" class="warn">🔄 Restart quiz (Same code)</button>`;
+  h+=`<button id="again" class="${v.status==='ended'?'':'sec'}">🔁 New session (New code)</button>`;
   h+='</div></div>';
 
   // Leaderboard with Anti-Cheat Tab Monitor Switcher
@@ -447,6 +454,12 @@ function hostRender(){
 
   // Nav actions
   $('#home').onclick=hostHome;
+  const rs=$('#restart');if(rs)rs.onclick=()=>{
+    if(confirm('Restart this quiz with the SAME room code and connected players? All scores/answers will be reset to 0 and the quiz will return to the lobby.')){
+      rs.disabled=true;
+      tx({t:'restart_session',code:v.code});
+    }
+  };
   const ag=$('#again');if(ag)ag.onclick=()=>{if(v.status==='ended'||confirm('Start a fresh run with a new code? This session stays saved.')){ag.disabled=true;tx({t:'relaunch',code:v.code})}};
 
   // Start & Next actions
