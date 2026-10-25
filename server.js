@@ -125,6 +125,10 @@ wss.on('connection', ws => {
       }
       if (m.t === 'open' && S[m.code]) { c.code = m.code; return broadcast(m.code); }
       if (!s) return;
+      if (m.t === 'finish' && s.status !== 'ended') { // host ends the quiz at any point; remaining questions are skipped
+        s.status = 'ended'; s.rev = null;
+        save(); return broadcast(c.code);
+      }
       if (m.t === 'adjust_score') { // host adds/deducts Vidyut for a player; allowed in any status, including after the quiz ended
         if (!has(s.players, m.pid)) return send(ws, { t: 'error', msg: 'Player not found' });
         const p = s.players[m.pid];

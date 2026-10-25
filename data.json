@@ -1,1 +1,512 @@
-{"quizzes":{"afea1deb-6f62-429c-912a-867927ac0867":{"id":"afea1deb-6f62-429c-912a-867927ac0867","title":"testing 4","qs":[{"q":"hwllo","o":["sdfs","afef","aera","fdcds"],"a":1},{"q":"gqrgdqf","o":["qwet34","awfrw4","wefwgw4","3rw4fwef"],"a":3},{"q":"sfrqfr4","o":["222224rw","23rwefe","3rewfw","wefdaf"],"a":0},{"q":"fwrfefw","o":["we23231","rwefr4g","rgerefdsf","wefwef4"],"a":2}],"updated":1792927258664}},"sessions":{"MS5G9":{"title":"testing","qs":[{"q":"who is pm of india","o":["modi","yogi","rahul","mamta"],"a":0},{"q":"whats national sport","o":["cricket","football","hockey","piddo"],"a":2},{"q":"capital of india","o":["amritsar","new delhi","bhopal","pune"],"a":0}],"cur":2,"status":"ended","rev":null,"qStart":{"0":1792090538768,"1":1792090558804,"2":1792090588071},"players":{"3gqyxdg2jbyu1fngf5k6zap0af0svd1bexcg85231wb":{"name":"Dev2","a":{"0":{"c":0,"t":1792090545317},"1":{"c":1,"t":1792090578907},"2":{"c":0,"t":1792090602429}}}}},"XD8XJ":{"title":"testing2","qs":[{"q":"Which sport is played with bat and ball","o":["cricket","badminton","table tennis","rugby"],"a":0},{"q":"which is a low level language","o":["python","c++","java","c"],"a":3}],"cur":1,"status":"ended","rev":null,"qStart":{"0":1792091028043,"1":1792091045917},"players":{"3gqyxdg2jbyu1fngf5k6zap0af0svd1bexcg85231wb":{"name":"Dev2","a":{"1":{"c":3,"t":1792091049715}}}}},"945E2":{"quizId":"bbc7c0bf-57cc-4bb0-a98c-effdfc18926b","title":"testing 4","qs":[{"q":"hwllo","o":["sdfs","afef","aera","fdcds"],"a":1},{"q":"gqrgdqf","o":["qwet34","awfrw4","wefwgw4","3rw4fwef"],"a":3},{"q":"sfrqfr4","o":["222224rw","23rwefe","3rewfw","wefdaf"],"a":0},{"q":"fwrfefw","o":["we23231","rwefr4g","rgerefdsf","wefwef4"],"a":2}],"cur":3,"status":"ended","rev":null,"qStart":{"0":1792777525338,"1":1792777528552,"2":1792777530029,"3":1792777530594},"players":{}},"ZFJ5J":{"quizId":"afea1deb-6f62-429c-912a-867927ac0867","title":"testing 4","qs":[{"q":"hwllo","o":["sdfs","afef","aera","fdcds"],"a":1},{"q":"gqrgdqf","o":["qwet34","awfrw4","wefwgw4","3rw4fwef"],"a":3},{"q":"sfrqfr4","o":["222224rw","23rwefe","3rewfw","wefdaf"],"a":0},{"q":"fwrfefw","o":["we23231","rwefr4g","rgerefdsf","wefwef4"],"a":2}],"cur":-1,"status":"lobby","rev":null,"qStart":{},"players":{}},"A84H9":{"quizId":"afea1deb-6f62-429c-912a-867927ac0867","title":"testing 4","qs":[{"q":"hwllo","o":["sdfs","afef","aera","fdcds"],"a":1},{"q":"gqrgdqf","o":["qwet34","awfrw4","wefwgw4","3rw4fwef"],"a":3},{"q":"sfrqfr4","o":["222224rw","23rwefe","3rewfw","wefdaf"],"a":0},{"q":"fwrfefw","o":["we23231","rwefr4g","rgerefdsf","wefwef4"],"a":2}],"cur":-1,"status":"lobby","rev":null,"qStart":{},"players":{}},"QCVQQ":{"quizId":"afea1deb-6f62-429c-912a-867927ac0867","title":"testing 4","qs":[{"q":"hwllo","o":["sdfs","afef","aera","fdcds"],"a":1},{"q":"gqrgdqf","o":["qwet34","awfrw4","wefwgw4","3rw4fwef"],"a":3},{"q":"sfrqfr4","o":["222224rw","23rwefe","3rewfw","wefdaf"],"a":0},{"q":"fwrfefw","o":["we23231","rwefr4g","rgerefdsf","wefwef4"],"a":2}],"cur":3,"status":"ended","rev":null,"optLive":true,"qStart":{"0":1792950743397,"1":1792950747723,"2":1792950749874,"3":1792950752009},"players":{}}}}
+{
+  "quizzes": {
+    "dc03822b-90e0-4e3f-8075-9fed7a439738": {
+      "id": "dc03822b-90e0-4e3f-8075-9fed7a439738",
+      "title": "Vidyut Club Quiz (50 Questions)",
+      "qs": [
+        {
+          "q": "Which part is called the brain of a computer?",
+          "o": [
+            "RAM",
+            "CPU",
+            "Hard Disk",
+            "Monitor"
+          ],
+          "a": 1
+        },
+        {
+          "q": "Which memory is volatile?",
+          "o": [
+            "ROM",
+            "SSD",
+            "RAM",
+            "Hard Disk"
+          ],
+          "a": 2
+        },
+        {
+          "q": "What is the full form of URL?",
+          "o": [
+            "Uniform Resource Locator",
+            "Universal Record Link",
+            "Unified Reference Line",
+            "User Resource Link"
+          ],
+          "a": 0
+        },
+        {
+          "q": "Which of these is a programming language?",
+          "o": [
+            "HTML",
+            "C++",
+            "HTTP",
+            "Wi-Fi"
+          ],
+          "a": 1
+        },
+        {
+          "q": "Which symbol terminates a normal statement in C++?",
+          "o": [
+            ".",
+            ";",
+            ":",
+            ","
+          ],
+          "a": 1
+        },
+        {
+          "q": "Which operator checks whether two values are equal?",
+          "o": [
+            "=",
+            "==",
+            "!=",
+            "+="
+          ],
+          "a": 1
+        },
+        {
+          "q": "What is the output of cout << 5 / 2;?",
+          "o": [
+            "2.5",
+            "2",
+            "3",
+            "Error"
+          ],
+          "a": 1
+        },
+        {
+          "q": "Which loop executes its body at least once?",
+          "o": [
+            "for",
+            "while",
+            "do-while",
+            "None"
+          ],
+          "a": 2
+        },
+        {
+          "q": "What is the index of the first element of a C++ array?",
+          "o": [
+            "0",
+            "1",
+            "-1",
+            "Depends on array"
+          ],
+          "a": 0
+        },
+        {
+          "q": "Which keyword is used to define a class in C++?",
+          "o": [
+            "object",
+            "define",
+            "class",
+            "struct only"
+          ],
+          "a": 2
+        },
+        {
+          "q": "Which language is primarily used to style web pages?",
+          "o": [
+            "HTML",
+            "CSS",
+            "SQL",
+            "C++"
+          ],
+          "a": 1
+        },
+        {
+          "q": "What does HTML stand for?",
+          "o": [
+            "HyperText Markup Language",
+            "High Transfer Machine Language",
+            "Hyperlink Text Management Language",
+            "Home Tool Markup Language"
+          ],
+          "a": 0
+        },
+        {
+          "q": "Which language is commonly used to query relational databases?",
+          "o": [
+            "SQL",
+            "CSS",
+            "C",
+            "XML"
+          ],
+          "a": 0
+        },
+        {
+          "q": "What does IP stand for in IP address?",
+          "o": [
+            "Internet Protocol",
+            "Internal Program",
+            "Information Process",
+            "Integrated Platform"
+          ],
+          "a": 0
+        },
+        {
+          "q": "What is phishing?",
+          "o": [
+            "Improving internet speed",
+            "Tricking people into revealing sensitive information",
+            "A type of printer",
+            "A coding language"
+          ],
+          "a": 1
+        },
+        {
+          "q": "What is the full form of AI?",
+          "o": [
+            "Automated Internet",
+            "Artificial Intelligence",
+            "Advanced Interface",
+            "Applied Information"
+          ],
+          "a": 1
+        },
+        {
+          "q": "Machine learning enables computers to:",
+          "o": [
+            "Learn patterns from data",
+            "Work without electricity",
+            "Replace every program",
+            "Only store files"
+          ],
+          "a": 0
+        },
+        {
+          "q": "Which technology records transactions in linked, tamper-resistant blocks?",
+          "o": [
+            "Blockchain",
+            "Bluetooth",
+            "Compiler",
+            "Firewall"
+          ],
+          "a": 0
+        },
+        {
+          "q": "Which technology creates an immersive, computer-generated environment?",
+          "o": [
+            "VR",
+            "GPS",
+            "USB",
+            "PDF"
+          ],
+          "a": 0
+        },
+        {
+          "q": "What is the SI unit of electric current?",
+          "o": [
+            "Volt",
+            "Watt",
+            "Ampere",
+            "Ohm"
+          ],
+          "a": 2
+        },
+        {
+          "q": "Which component stores electrical charge?",
+          "o": [
+            "Resistor",
+            "Capacitor",
+            "Diode",
+            "Switch"
+          ],
+          "a": 1
+        },
+        {
+          "q": "Find the next number: 2, 4, 8, 16, __.",
+          "o": [
+            "18",
+            "24",
+            "32",
+            "30"
+          ],
+          "a": 2
+        },
+        {
+          "q": "If all roses are flowers, which statement must be true?",
+          "o": [
+            "All flowers are roses",
+            "Every rose is a flower",
+            "No roses are flowers",
+            "All plants are roses"
+          ],
+          "a": 1
+        },
+        {
+          "q": "What is the capital of India?",
+          "o": [
+            "Mumbai",
+            "New Delhi",
+            "Kolkata",
+            "Chennai"
+          ],
+          "a": 1
+        },
+        {
+          "q": "What is the full form of ISRO?",
+          "o": [
+            "Indian Space Research Organisation",
+            "International Science Research Office",
+            "Indian Satellite Radio Organisation",
+            "Institute of Space and Rocket Operations"
+          ],
+          "a": 0
+        },
+        {
+          "q": "Which type of memory is typically the fastest among these?",
+          "o": [
+            "SSD",
+            "RAM",
+            "CPU cache",
+            "Hard disk"
+          ],
+          "a": 2
+        },
+        {
+          "q": "Which scheduling algorithm gives each process a fixed time slice?",
+          "o": [
+            "FCFS",
+            "Round Robin",
+            "Shortest Job First",
+            "Priority scheduling only"
+          ],
+          "a": 1
+        },
+        {
+          "q": "Which protocol is commonly used to securely browse websites?",
+          "o": [
+            "HTTP",
+            "FTP",
+            "HTTPS",
+            "SMTP"
+          ],
+          "a": 2
+        },
+        {
+          "q": "A device that forwards packets between different networks is a:",
+          "o": [
+            "Switch",
+            "Router",
+            "Repeater",
+            "Hub"
+          ],
+          "a": 1
+        },
+        {
+          "q": "What is the output? int x = 7; cout << x / 2;",
+          "o": [
+            "3.5",
+            "3",
+            "4",
+            "Compilation error"
+          ],
+          "a": 1
+        },
+        {
+          "q": "What is the value of x after this code? int x=5; x += 3*2;",
+          "o": [
+            "11",
+            "16",
+            "13",
+            "10"
+          ],
+          "a": 0
+        },
+        {
+          "q": "How many times does the loop run? for(int i=1; i<8; i+=2)",
+          "o": [
+            "3",
+            "4",
+            "5",
+            "7"
+          ],
+          "a": 1
+        },
+        {
+          "q": "What is printed? int a[]={4,7,9,2}; cout << a[2];",
+          "o": [
+            "4",
+            "7",
+            "9",
+            "2"
+          ],
+          "a": 2
+        },
+        {
+          "q": "What is the main purpose of a function in C++?",
+          "o": [
+            "To repeat code manually",
+            "To organise reusable code",
+            "To store only integers",
+            "To replace the compiler"
+          ],
+          "a": 1
+        },
+        {
+          "q": "Which OOP concept allows the same function name to behave differently with different parameters?",
+          "o": [
+            "Inheritance",
+            "Encapsulation",
+            "Function overloading",
+            "Data hiding"
+          ],
+          "a": 2
+        },
+        {
+          "q": "In C++, which access specifier makes class members accessible only inside the class and its friends?",
+          "o": [
+            "public",
+            "private",
+            "protected",
+            "global"
+          ],
+          "a": 1
+        },
+        {
+          "q": "Which data structure follows LIFO order?",
+          "o": [
+            "Queue",
+            "Stack",
+            "Tree",
+            "Graph"
+          ],
+          "a": 1
+        },
+        {
+          "q": "Which data structure is commonly used for breadth-first search (BFS)?",
+          "o": [
+            "Stack",
+            "Queue",
+            "Heap",
+            "Hash table"
+          ],
+          "a": 1
+        },
+        {
+          "q": "Which SQL command removes selected rows from a table while keeping the table structure?",
+          "o": [
+            "DROP",
+            "DELETE",
+            "ALTER",
+            "CREATE"
+          ],
+          "a": 1
+        },
+        {
+          "q": "Which HTTP status code usually means 'Not Found'?",
+          "o": [
+            "200",
+            "301",
+            "403",
+            "404"
+          ],
+          "a": 3
+        },
+        {
+          "q": "What is the safest response to an unexpected email asking you to verify your password through a link?",
+          "o": [
+            "Click and check",
+            "Reply with password",
+            "Open the official site separately and verify",
+            "Forward it to everyone"
+          ],
+          "a": 2
+        },
+        {
+          "q": "In supervised learning, training data usually contains:",
+          "o": [
+            "Only images",
+            "Inputs with known labels/targets",
+            "No examples",
+            "Only random numbers"
+          ],
+          "a": 1
+        },
+        {
+          "q": "Which task is a classification problem?",
+          "o": [
+            "Predicting tomorrow's temperature",
+            "Estimating house price",
+            "Classifying an email as spam or not spam",
+            "Calculating average marks"
+          ],
+          "a": 2
+        },
+        {
+          "q": "Which is a key limitation of generative AI systems?",
+          "o": [
+            "They cannot generate text",
+            "They may produce plausible but incorrect information",
+            "They work only offline",
+            "They never use training data"
+          ],
+          "a": 1
+        },
+        {
+          "q": "Which feature is a defining characteristic of blockchain?",
+          "o": [
+            "A single editable spreadsheet",
+            "A distributed ledger with linked records",
+            "A faster CPU",
+            "A wireless connection standard"
+          ],
+          "a": 1
+        },
+        {
+          "q": "Two 6 Ω resistors connected in parallel have an equivalent resistance of:",
+          "o": [
+            "12 Ω",
+            "6 Ω",
+            "3 Ω",
+            "1 Ω"
+          ],
+          "a": 2
+        },
+        {
+          "q": "A diode is primarily used to:",
+          "o": [
+            "Store magnetic data",
+            "Allow current mainly in one direction",
+            "Increase resistance without limit",
+            "Measure temperature only"
+          ],
+          "a": 1
+        },
+        {
+          "q": "A value increases from 80 to 100. What is the percentage increase?",
+          "o": [
+            "20%",
+            "25%",
+            "30%",
+            "40%"
+          ],
+          "a": 1
+        },
+        {
+          "q": "Find the next number: 3, 8, 15, 24, 35, __.",
+          "o": [
+            "44",
+            "46",
+            "48",
+            "50"
+          ],
+          "a": 2
+        },
+        {
+          "q": "Which Indian mission made a soft landing near the Moon's south polar region in 2023?",
+          "o": [
+            "Mangalyaan",
+            "Chandrayaan-2",
+            "Chandrayaan-3",
+            "Aditya-L1"
+          ],
+          "a": 2
+        }
+      ],
+      "updated": 1792937309093
+    }
+  },
+  "sessions": {}
+}

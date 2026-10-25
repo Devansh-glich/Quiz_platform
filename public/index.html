@@ -407,6 +407,7 @@ function hostRender(){
       if(cur < n-1){
         h+=`<button id="nextKbc" class="kbc">▶ Next (Question First · KBC)</button>`;
         h+=`<button id="nextDirect" class="sec">⚡ Next (With Options)</button>`;
+        h+=`<button id="finishNow" class="warn">🏁 Finish quiz now</button>`;
       } else {
         h+=`<button id="finish">🏁 Finish Quiz</button>`;
       }
@@ -508,6 +509,7 @@ function hostRender(){
   const sd=$('#startDirect');if(sd)sd.onclick=()=>{sd.disabled=true;playKbcSound();tx({t:'next',showOptions:true})};
   const nk=$('#nextKbc');if(nk)nk.onclick=()=>{nk.disabled=true;playQuestionDrone();tx({t:'next',showOptions:false})};
   const nd=$('#nextDirect');if(nd)nd.onclick=()=>{nd.disabled=true;playKbcSound();tx({t:'next',showOptions:true})};
+  const fnow=$('#finishNow');if(fnow)fnow.onclick=()=>{if(confirm('Finish the quiz now? Remaining questions will be skipped and everyone will see the final leaderboard.')){fnow.disabled=true;tx({t:'finish'})}};
   const fn=$('#finish');if(fn)fn.onclick=()=>{fn.disabled=true;tx({t:'next'})};
 
   // Reveal options
