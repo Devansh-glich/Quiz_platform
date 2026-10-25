@@ -15,6 +15,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;ba
 .top{position:relative;max-width:860px;margin:0 auto;padding:max(14px,env(safe-area-inset-top)) 16px 0;display:flex;align-items:center;gap:12px}
 .top svg{width:38px;height:38px;filter:drop-shadow(0 0 10px rgba(255,214,10,.7));animation:pulse 2.4s ease-in-out infinite}
 .top b{display:block;font:700 22px/1 var(--hd);letter-spacing:.32em;color:var(--ac)}.top small{color:var(--mu);font-size:12px;letter-spacing:.08em}
+.top-actions{margin-left:auto;display:flex;gap:8px;align-items:center}
 main{position:relative;max-width:860px;margin:0 auto;padding:10px 16px 28px}
 h1{font:700 34px/1.15 var(--hd);margin:14px 0 4px}h1 span{background:linear-gradient(90deg,var(--ac),var(--ac2));-webkit-background-clip:text;background-clip:text;color:transparent}
 h2{font:700 20px/1.3 var(--hd);margin:0 0 10px}.mu{color:var(--mu);font-size:14px}
@@ -22,9 +23,13 @@ h2{font:700 20px/1.3 var(--hd);margin:0 0 10px}.mu{color:var(--mu);font-size:14p
 button{font:600 15px var(--hd);cursor:pointer;border:0;border-radius:12px;padding:11px 18px;color:#1a1400;background:linear-gradient(135deg,var(--ac),#ffb703);box-shadow:0 4px 18px rgba(255,214,10,.28);transition:transform .15s,box-shadow .15s}
 button:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 26px rgba(255,214,10,.4)}
 button.sec{background:rgba(255,255,255,.04);color:var(--tx);border:1px solid var(--bd);box-shadow:none}button.sec:hover:not(:disabled){border-color:var(--ac2);box-shadow:0 0 18px rgba(34,211,238,.25)}
+button.kbc{background:linear-gradient(135deg,#f72585,#7209b7);color:#fff;box-shadow:0 4px 20px rgba(247,37,133,.45)}
+button.kbc:hover:not(:disabled){box-shadow:0 6px 26px rgba(247,37,133,.7)}
+button.warn{background:linear-gradient(135deg,#ff5470,#d90429);color:#fff;box-shadow:0 4px 18px rgba(255,84,112,.3)}
+button.btn-sm{padding:6px 12px;font-size:13px;border-radius:8px}
 button:disabled{opacity:.45;cursor:default}
-input,textarea{color:var(--tx)!important;-webkit-text-fill-color:var(--tx)!important;caret-color:var(--ac);font:inherit;width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--bd);background:rgba(7,11,26,.7);transition:border-color .15s,box-shadow .15s}
-input:focus,textarea:focus{outline:0;border-color:var(--ac2);box-shadow:0 0 0 3px rgba(34,211,238,.2)}input::placeholder,textarea::placeholder{color:var(--mu);-webkit-text-fill-color:var(--mu)}
+input,textarea,select{color:var(--tx)!important;-webkit-text-fill-color:var(--tx)!important;caret-color:var(--ac);font:inherit;width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--bd);background:rgba(7,11,26,.7);transition:border-color .15s,box-shadow .15s}
+input:focus,textarea:focus,select:focus{outline:0;border-color:var(--ac2);box-shadow:0 0 0 3px rgba(34,211,238,.2)}input::placeholder,textarea::placeholder{color:var(--mu);-webkit-text-fill-color:var(--mu)}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.grow{flex:1 1 200px}
 .code{font:700 52px/1 var(--hd);letter-spacing:.18em;color:var(--ac);text-shadow:0 0 22px rgba(255,214,10,.55)}
 .opt{display:block;width:100%;text-align:left;margin:10px 0;padding:15px 18px;background:rgba(7,11,26,.6);color:var(--tx);border:2px solid var(--bd);box-shadow:none;font:500 16px Inter,sans-serif}
@@ -34,40 +39,179 @@ table{width:100%;border-collapse:collapse}th{color:var(--mu);font:600 12px var(-
 tr:nth-child(2) td:first-child{color:#ffd60a;font-weight:700}tr:nth-child(3) td:first-child{color:#cfd8ee;font-weight:700}tr:nth-child(4) td:first-child{color:#e8a06a;font-weight:700}
 tr:nth-child(2) td{background:linear-gradient(90deg,rgba(255,214,10,.1),transparent)}
 .tag{display:inline-block;padding:3px 10px;border-radius:99px;font:700 11px var(--hd);letter-spacing:.06em;background:linear-gradient(135deg,var(--ok),var(--ac2));color:#04201a}
+.tag.danger{background:linear-gradient(135deg,#ff5470,#e63946);color:#fff}
+.tag.warn{background:linear-gradient(135deg,#ffd60a,#ff9f1c);color:#1a1400}
+.tag.neutral{background:rgba(255,255,255,.08);color:var(--tx);border:1px solid var(--bd)}
 .wrap{overflow-x:auto}.q{border:1px dashed var(--bd);border-radius:14px;padding:14px;margin:12px 0;background:rgba(7,11,26,.35)}
 video{width:100%;border-radius:14px;background:#000;margin-top:12px}#qr{background:#fff;padding:10px;display:inline-block;border-radius:14px;box-shadow:0 0 30px rgba(34,211,238,.3)}
 .hero p{margin:0 0 6px;color:var(--mu)}
+/* Tabs */
+.tabs{display:flex;gap:6px;margin:14px 0 10px;border-bottom:1px solid var(--bd);padding-bottom:10px}
+.tab-btn{background:transparent;border:0;color:var(--mu);padding:8px 14px;font-size:14px;border-radius:8px;box-shadow:none}
+.tab-btn.active{color:var(--ac);background:rgba(255,214,10,.12);box-shadow:none;font-weight:700}
+.tab-btn:hover:not(.active){color:var(--tx);background:rgba(255,255,255,.04);transform:none}
+/* Modal Backdrop */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.78);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);z-index:999;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal-box{background:var(--bg2);border:1px solid var(--bd);border-radius:20px;max-width:620px;width:100%;max-height:90vh;overflow-y:auto;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.6);animation:rise .25s ease both}
+/* Pulse animation */
+.kbc-pulse{animation:kbcPulse 1.8s infinite}
+@keyframes kbcPulse{0%,100%{box-shadow:0 0 15px rgba(255,214,10,.25)}50%{box-shadow:0 0 35px rgba(247,37,133,.6);border-color:var(--ac)}}
 footer{position:relative;max-width:860px;margin:0 auto;padding:8px 16px calc(34px + env(safe-area-inset-bottom));text-align:center;color:var(--mu);font-size:13px;letter-spacing:.03em}
 footer b{color:var(--ac);font:700 15px var(--hd)}footer i{display:block;margin-top:4px;font-style:normal;font-size:11px;letter-spacing:.14em;text-transform:uppercase}
 @keyframes pulse{50%{transform:scale(1.08);filter:drop-shadow(0 0 18px rgba(255,214,10,.95))}}@keyframes rise{from{opacity:0;transform:translateY(10px)}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 @media(max-width:520px){h1{font-size:28px}.code{font-size:40px}}
-</style></head><body><div class="top"><svg viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd60a"/><stop offset="1" stop-color="#ff9f1c"/></linearGradient></defs><path fill="url(#g)" d="M13.5 1 4 13.5h6.2L9 23l10-13.2h-6.4z"/></svg><div><b>VIDYUT</b><small>MITS GWALIOR · TECH CLUB</small></div></div><main id="app"></main><footer><b>V</b>alue <b>I</b>s <b>D</b>oubled when <b>Y</b>outh <b>U</b>nderstand <b>T</b>echnology<i>Vidyut Club · MITS Gwalior</i></footer>
+</style></head><body>
+<div class="top">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd60a"/><stop offset="1" stop-color="#ff9f1c"/></linearGradient></defs><path fill="url(#g)" d="M13.5 1 4 13.5h6.2L9 23l10-13.2h-6.4z"/></svg>
+  <div><b>VIDYUT</b><small>MITS GWALIOR · TECH CLUB</small></div>
+  <div class="top-actions" id="topNav"></div>
+</div>
+<main id="app"></main>
+<div id="modalSlot"></div>
+<footer><b>V</b>alue <b>I</b>s <b>D</b>oubled when <b>Y</b>outh <b>U</b>nderstand <b>T</b>echnology<i>Vidyut Club · MITS Gwalior</i></footer>
 <script>
-const $=s=>document.querySelector(s),app=$('#app');
+const $=s=>document.querySelector(s),app=$('#app'),modalSlot=$('#modalSlot');
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid=()=>(window.crypto&&crypto.randomUUID)?crypto.randomUUID():Array.from({length:4},()=>Math.random().toString(36).slice(2)).join('');
 let pid;try{pid=localStorage.pid||(localStorage.pid=uid())}catch(e){pid=uid()}
 let ws,hello=null,hostCode=null,lastStr='',name=(()=>{try{return localStorage.qname||''}catch(e){return ''}})(),pw='',view=null,draft=null,scanStream=null,qrBox=null,qrFor='',isHost=false;
+let hostTab='scores'; // 'scores' or 'switches'
+let soundOn = localStorage.soundOn !== 'false';
+let prevOptLive = null;
 
+/* ---- Web Audio API / KBC Sound Synthesizer ---- */
+let audioCtx = null;
+function getAudioCtx(){
+  if(!audioCtx){
+    const AC=window.AudioContext||window.webkitAudioContext;
+    if(AC) audioCtx=new AC();
+  }
+  if(audioCtx&&audioCtx.state==='suspended') audioCtx.resume();
+  return audioCtx;
+}
+function playKbcSound(){
+  if(!soundOn) return;
+  const a=new Audio('/kbc.mp3');
+  a.play().catch(()=>synthKbcOptionsSting());
+}
+function playQuestionDrone(){
+  if(!soundOn) return;
+  const a=new Audio('/kbc-question.mp3');
+  a.play().catch(()=>synthQuestionDrone());
+}
+function synthQuestionDrone(){
+  const ctx=getAudioCtx(); if(!ctx) return;
+  const t=ctx.currentTime;
+  const osc=ctx.createOscillator(), g=ctx.createGain(), f=ctx.createBiquadFilter();
+  osc.type='sawtooth';
+  osc.frequency.setValueAtTime(55,t);
+  osc.frequency.exponentialRampToValueAtTime(73.4,t+1.4);
+  f.type='lowpass'; f.frequency.setValueAtTime(140,t); f.frequency.linearRampToValueAtTime(320,t+1.6);
+  g.gain.setValueAtTime(0.001,t); g.gain.linearRampToValueAtTime(0.2,t+0.3); g.gain.exponentialRampToValueAtTime(0.001,t+2.6);
+  osc.connect(f); f.connect(g); g.connect(ctx.destination);
+  osc.start(t); osc.stop(t+2.7);
+}
+function synthKbcOptionsSting(){
+  const ctx=getAudioCtx(); if(!ctx) return;
+  const t=ctx.currentTime;
+  // Sub impact
+  const sub=ctx.createOscillator(), subG=ctx.createGain();
+  sub.type='sine'; sub.frequency.setValueAtTime(110,t); sub.frequency.exponentialRampToValueAtTime(36,t+0.8);
+  subG.gain.setValueAtTime(0.4,t); subG.gain.exponentialRampToValueAtTime(0.001,t+1.1);
+  sub.connect(subG); subG.connect(ctx.destination);
+  sub.start(t); sub.stop(t+1.15);
+  // Layered tension chord: D2, A2, D3, F3, A3, D4
+  [73.42, 110.00, 146.83, 174.61, 220.00, 293.66].forEach((fr, i)=>{
+    const o=ctx.createOscillator(), g=ctx.createGain(), fl=ctx.createBiquadFilter();
+    o.type=i%2===0?'sawtooth':'triangle';
+    o.frequency.setValueAtTime(fr, t);
+    o.detune.setValueAtTime((i-3)*6, t);
+    fl.type='lowpass'; fl.frequency.setValueAtTime(420, t);
+    fl.frequency.exponentialRampToValueAtTime(1350, t+0.35);
+    fl.frequency.exponentialRampToValueAtTime(500, t+2.0);
+    g.gain.setValueAtTime(0.001, t);
+    g.gain.linearRampToValueAtTime(0.08, t+0.12);
+    g.gain.exponentialRampToValueAtTime(0.001, t+2.2);
+    o.connect(fl); fl.connect(g); g.connect(ctx.destination);
+    o.start(t); o.stop(t+2.3);
+  });
+  // High shimmer bell
+  const bell=ctx.createOscillator(), bg=ctx.createGain();
+  bell.type='sine'; bell.frequency.setValueAtTime(1174.66, t);
+  bg.gain.setValueAtTime(0.12, t); bg.gain.exponentialRampToValueAtTime(0.001, t+1.4);
+  bell.connect(bg); bg.connect(ctx.destination);
+  bell.start(t); bell.stop(t+1.45);
+}
+
+function updateTopNav(){
+  const el=$('#topNav'); if(!el) return;
+  if(isHost){
+    el.innerHTML=`<button class="sec btn-sm" id="sndToggle">${soundOn?'🔊 Sound ON':'🔇 Sound OFF'}</button>`;
+    $('#sndToggle').onclick=()=>{
+      soundOn=!soundOn; localStorage.soundOn=soundOn;
+      if(soundOn) playKbcSound();
+      updateTopNav();
+    };
+  } else {
+    el.innerHTML='';
+  }
+}
+
+/* ---- WebSocket Connection ---- */
 function connect(){
   ws=new WebSocket((location.protocol==='https:'?'wss':'ws')+'://'+location.host);
   ws.onopen=()=>hello&&hello();
-  ws.onmessage=e=>{const m=JSON.parse(e.data);
+  ws.onmessage=e=>{
+    const m=JSON.parse(e.data);
     if(m.t==='error'){if(m.msg==='Wrong password'){pw='';sessionStorage.removeItem('pw');hello=null}const el=$('#err');if(el)el.textContent=m.msg;else alert(m.msg);return}
     if(m.t==='admin_ok'){sessionStorage.pw=pw;if(hostCode)tx({t:'open',code:hostCode});else hostHome();return}
     if(m.t==='list'){return hostList(m.items)}
     if(m.t==='quizzes'){return hostQuizzes(m.items)}
     if(m.t==='saved'){hostHome();return}
-    if(m.t==='play'){if(e.data===lastStr)return;lastStr=e.data}
-    view=m;if(m.t==='host')hostCode=m.code;m.t==='host'?hostRender():playRender()};
+    if(m.t==='play'){
+      if(e.data===lastStr)return;
+      lastStr=e.data;
+      if(m.cur>=0 && m.optLive && prevOptLive===false){
+        playKbcSound();
+      }
+      prevOptLive=m.cur>=0 ? !!m.optLive : null;
+    }
+    view=m;
+    if(m.t==='host'){
+      hostCode=m.code;
+      hostRender();
+    } else {
+      playRender();
+    }
+  };
   ws.onclose=()=>setTimeout(connect,1500);
 }
-const tx=o=>ws.readyState===1&&ws.send(JSON.stringify(o));
-function route(){stopScan();view=null;hello=null;lastStr='';hostCode=null;isHost=location.hash==='#host';isHost?hostLogin():home(location.hash.slice(1).toUpperCase())}
+const tx=o=>ws&&ws.readyState===1&&ws.send(JSON.stringify(o));
+function route(){stopScan();closeModal();view=null;hello=null;lastStr='';hostCode=null;prevOptLive=null;isHost=location.hash==='#host';updateTopNav();isHost?hostLogin():home(location.hash.slice(1).toUpperCase())}
 addEventListener('hashchange',route);
 
-/* ---- participant ---- */
+/* ---- Tab Switch Detection (Participant Anti-Cheat) ---- */
+let lastTabReport=0;
+function reportTabSwitch(){
+  const now=Date.now();
+  if(now-lastTabReport < 800) return;
+  lastTabReport=now;
+  if(ws && ws.readyState===1 && pid && view && view.status==='live'){
+    tx({t:'tab_switch', pid});
+  }
+}
+document.addEventListener('visibilitychange',()=>{ if(document.hidden) reportTabSwitch(); });
+window.addEventListener('blur',()=>{ reportTabSwitch(); });
+
+/* ---- Modal Helper ---- */
+function openModal(html){
+  modalSlot.innerHTML=`<div class="modal-bg" id="modalBg"><div class="modal-box">${html}</div></div>`;
+  $('#modalBg').onclick=e=>{if(e.target.id==='modalBg') closeModal();};
+}
+function closeModal(){modalSlot.innerHTML='';}
+
+/* ---- Participant Screen ---- */
 function home(pre){
   app.innerHTML=`<div class="hero"><h1>Vidyut <span>Quiz</span></h1><p>Enter your name and the code on the big screen to join the battle ⚡</p></div><div class="card"><label class="mu">Your name</label><input id="nm" maxlength="24" value="${esc(name)}" placeholder="e.g. Aarav"><div style="height:10px"></div>
   <label class="mu">Quiz code</label><input id="cd" maxlength="5" value="${esc(pre||'')}" placeholder="ABCDE" style="text-transform:uppercase;letter-spacing:.2em;font-weight:700">
@@ -78,81 +222,341 @@ function home(pre){
   $('#scan').onclick=startScan;
 }
 function playRender(){
-  const v=view,ans=v.mine?.[v.cur];
+  const v=view; if(!v) return;
+  const ans=v.mine?.[v.cur];
   let h=`<div class="row"><h2 class="grow">${esc(v.title)}</h2><span class="mu">${esc(v.name)}</span></div>`;
-  if(v.status==='ended')h+=`<div class="card"><h2>🏁 Quiz finished</h2>${boardHTML(v.board,true)}</div>`;
-  else if(v.cur<0)h+=`<div class="card"><h2>Waiting for the host to start…</h2><p class="mu">You're in! The first question appears when the host is ready.</p></div>`;
-  else{const rev=v.rev,locked=ans||rev!==null;
-    h+=`<div class="card"><p class="mu">Question ${v.cur+1} of ${v.n}</p><h2>${esc(v.q.q)}</h2>`+v.q.o.map((o,i)=>{let cl='opt';if(ans&&ans.c===i)cl+=' sel';if(rev!==null){if(i===rev)cl+=' ok';else if(ans&&ans.c===i)cl+=' no'}
-      return `<button class="${cl}" data-i="${i}" ${locked?'disabled':''}>${'ABCDEF'[i]}. ${esc(o)}</button>`}).join('');
-    h+=ans?`<p class="mu">✅ Answer locked in. Wait for the next question.</p>`:rev!==null?`<p class="mu">Time's up for this question.</p>`:'';
-    if(rev!==null&&ans)h+=`<p><b>${ans.c===rev?'🎉 Correct!':'❌ Not quite.'}</b> <span class="tag">+${v.pts??0} ⚡</span></p>`;h+='</div>';
-    if(rev!==null)h+=`<div class="card"><h2>Leaderboard</h2>${boardHTML(v.board,false)}</div>`}
-  app.innerHTML=h;app.querySelectorAll('.opt').forEach(b=>b.onclick=()=>tx({t:'answer',i:+b.dataset.i}));
+  if(v.status==='ended') h+=`<div class="card"><h2>🏁 Quiz finished</h2>${boardHTML(v.board,true)}</div>`;
+  else if(v.cur<0) h+=`<div class="card"><h2>Waiting for the host to start…</h2><p class="mu">You're in! The first question appears when the host is ready.</p></div>`;
+  else {
+    const rev=v.rev, locked=ans||rev!==null;
+    h+=`<div class="card"><p class="mu">Question ${v.cur+1} of ${v.n}</p><h2>${esc(v.q.q)}</h2>`;
+    // If options not yet live and answer not revealed:
+    if(!v.optLive && rev===null){
+      h+=`<div style="text-align:center;padding:26px 14px;border:1px dashed var(--ac2);border-radius:14px;background:rgba(34,211,238,.06);margin:14px 0" class="kbc-pulse">
+        <div style="font-size:32px;animation:pulse 1.6s infinite">⏳</div>
+        <h3 style="margin:8px 0 4px;font-family:var(--hd);color:var(--ac)">Question is Live!</h3>
+        <p class="mu" style="margin:0">Options are locked. Host will reveal options soon...</p>
+      </div>`;
+    } else {
+      h+=v.q.o.map((o,i)=>{let cl='opt';if(ans&&ans.c===i)cl+=' sel';if(rev!==null){if(i===rev)cl+=' ok';else if(ans&&ans.c===i)cl+=' no'}
+        return `<button class="${cl}" data-i="${i}" ${locked?'disabled':''}>${'ABCDEF'[i]}. ${esc(o)}</button>`}).join('');
+      h+=ans?`<p class="mu">✅ Answer locked in. Wait for the next question.</p>`:rev!==null?`<p class="mu">Time's up for this question.</p>`:'';
+    }
+    if(rev!==null&&ans) h+=`<p><b>${ans.c===rev?'🎉 Correct!':'❌ Not quite.'}</b> <span class="tag">+${v.pts??0} ⚡</span></p>`;
+    h+='</div>';
+    if(rev!==null) h+=`<div class="card"><h2>Leaderboard</h2>${boardHTML(v.board,false)}</div>`;
+  }
+  app.innerHTML=h;
+  app.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
+    getAudioCtx();
+    tx({t:'answer',i:+b.dataset.i});
+  });
 }
-function boardHTML(b,all){if(!b?.length)return '<p class="mu">No scores yet.</p>';const me=b.findIndex(r=>r.id===pid);
-  return `<div class="wrap"><table><tr><th>#</th><th>Name</th><th>Vidyut ⚡</th></tr>${b.slice(0,all?50:10).map((r,i)=>`<tr ${r.id===pid?'style="font-weight:700"':''}><td>${i+1}</td><td>${esc(r.name)}</td><td>${r.score}</td></tr>`).join('')}</table></div>${me>=10&&!all?`<p class="mu">You: #${me+1} · ${b[me].score}</p>`:''}`}
-async function startScan(){const er=$('#err');
+function boardHTML(b,all){
+  if(!b?.length) return '<p class="mu">No scores yet.</p>';
+  const me=b.findIndex(r=>r.id===pid);
+  return `<div class="wrap"><table><tr><th>#</th><th>Name</th><th>Vidyut ⚡</th></tr>${b.slice(0,all?50:10).map((r,i)=>`<tr ${r.id===pid?'style="font-weight:700"':''}><td>${i+1}</td><td>${esc(r.name)}</td><td>${r.score}</td></tr>`).join('')}</table></div>${me>=10&&!all?`<p class="mu">You: #${me+1} · ${b[me].score}</p>`:''}`;
+}
+async function startScan(){
+  const er=$('#err');
   try{scanStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}})}catch{er.textContent='Camera unavailable (needs HTTPS or localhost). Type the code instead.';return}
   $('#scanbox').innerHTML='<video id="vid" playsinline muted></video>';const v=$('#vid');v.srcObject=scanStream;await v.play();
   const cv=document.createElement('canvas'),cx=cv.getContext('2d',{willReadFrequently:true});
   (function tick(){if(!scanStream)return;if(v.videoWidth){cv.width=v.videoWidth;cv.height=v.videoHeight;cx.drawImage(v,0,0);
     const r=jsQR(cx.getImageData(0,0,cv.width,cv.height).data,cv.width,cv.height);
     if(r){const m=(r.data.split('#').pop()||'').trim().toUpperCase();if(/^[A-Z0-9]{5}$/.test(m)){$('#cd').value=m;stopScan();$('#scanbox').innerHTML='';er.textContent='Code scanned. Enter your name and join.';return}}}
-    requestAnimationFrame(tick)})()}
+    requestAnimationFrame(tick)})();
+}
 function stopScan(){if(scanStream){scanStream.getTracks().forEach(t=>t.stop());scanStream=null}}
 
-/* ---- host ---- */
+/* ---- Host Screen ---- */
 function hostLogin(){
   app.innerHTML=`<h1>Vidyut <span>Quiz</span> · Host</h1><div class="card"><label class="mu">Admin password</label><input id="pw" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Enter admin password"><div class="row" style="margin-top:12px"><button id="go">Sign in</button></div><p class="mu" id="err"></p></div>`;
   const go=()=>{pw=$('#pw').value;hello=()=>tx({t:'admin',pw});hello()};$('#go').onclick=go;$('#pw').onkeydown=e=>{if(e.key==='Enter')go()};
   $('#pw').focus();
 }
 let QZ=[];
-function hostHome(){hostCode=null;hello=()=>tx({t:'admin',pw});app.innerHTML=`<h1>Vidyut <span>Quiz</span> · Host</h1><p class="mu">Save a quiz once, then launch it as many times as you like.</p><div class="card"><div class="row"><h2 class="grow">📚 My quizzes</h2><button id="new">+ Create quiz</button></div><div id="qz" class="mu">Loading…</div></div><div class="card"><h2>🕘 Past &amp; live sessions</h2><div id="list" class="mu">Loading…</div></div>`;
-  $('#new').onclick=()=>{draft={title:'',qs:[{q:'',o:['','','',''],a:0}]};editor()};tx({t:'quizzes'});tx({t:'list'})}
-function hostQuizzes(items){QZ=items;const el=$('#qz');if(!el)return;
+function hostHome(){
+  hostCode=null;hello=()=>tx({t:'admin',pw});
+  app.innerHTML=`<h1>Vidyut <span>Quiz</span> · Host</h1><p class="mu">Save a quiz once, then launch it as many times as you like.</p><div class="card"><div class="row"><h2 class="grow">📚 My quizzes</h2><button id="new">+ Create quiz</button></div><div id="qz" class="mu">Loading…</div></div><div class="card"><h2>🕘 Past &amp; live sessions</h2><div id="list" class="mu">Loading…</div></div>`;
+  $('#new').onclick=()=>{draft={title:'',qs:[{q:'',o:['','','',''],a:0}]};editor()};tx({t:'quizzes'});tx({t:'list'});
+}
+function hostQuizzes(items){
+  QZ=items;const el=$('#qz');if(!el)return;
   el.innerHTML=items.length?items.map(z=>`<div class="row" style="margin:8px 0"><div class="grow"><b>${esc(z.title)}</b><div class="mu">${z.qs.length} questions</div></div><button data-l="${z.id}">🚀 Launch</button><button class="sec" data-e="${z.id}">Edit</button><button class="sec" data-d="${z.id}">Delete</button></div>`).join(''):'No saved quizzes yet. Create one!';
   el.querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{b.disabled=true;tx({t:'launch',id:b.dataset.l})});
   el.querySelectorAll('[data-e]').forEach(b=>b.onclick=()=>{const z=QZ.find(x=>x.id===b.dataset.e);draft={id:z.id,title:z.title,qs:z.qs.map(q=>({q:q.q,o:[...q.o,'','','',''].slice(0,Math.max(4,q.o.length)),a:q.a}))};editor()});
-  el.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{if(confirm('Delete this saved quiz? Past sessions are kept.'))tx({t:'delete_quiz',id:b.dataset.d})})}
-function hostList(items){const el=$('#list');if(!el)return;
+  el.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{if(confirm('Delete this saved quiz? Past sessions are kept.'))tx({t:'delete_quiz',id:b.dataset.d})});
+}
+function hostList(items){
+  const el=$('#list');if(!el)return;
   el.innerHTML=items.length?items.map(i=>`<div class="row" style="margin:6px 0"><b class="grow">${esc(i.title)}</b><span class="mu">${i.code} · ${i.status} · ${i.players} players</span><button class="sec" data-c="${i.code}">Open</button><button class="sec" data-x="${i.code}">✕</button></div>`).join(''):'No sessions yet.';
   el.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>openQuiz(b.dataset.c));
-  el.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{if(confirm('Delete this session and its results?'))tx({t:'delete_session',code:b.dataset.x})})}
+  el.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{if(confirm('Delete this session and its results?'))tx({t:'delete_session',code:b.dataset.x})});
+}
 function openQuiz(c){hello=()=>{tx({t:'admin',pw});tx({t:'open',code:c})};tx({t:'open',code:c})}
+
+/* Template Quiz Editor */
 function editor(){
-  app.innerHTML=`<h1>Create quiz</h1><div class="card"><input id="t" placeholder="Quiz title" value="${esc(draft.title)}"></div><div id="qs"></div><div class="row"><button class="sec" id="add">+ Add question</button><button class="sec" id="save">💾 Save</button><button id="launch">🚀 Save &amp; launch</button><button class="sec" id="back">Cancel</button></div><p class="mu" id="err"></p>`;
-  const paint=()=>{$('#qs').innerHTML=draft.qs.map((q,i)=>`<div class="card"><div class="row"><b class="grow">Question ${i+1}</b>${draft.qs.length>1?`<button class="sec" data-del="${i}">Remove</button>`:''}</div><textarea rows="2" data-q="${i}" placeholder="Question text">${esc(q.q)}</textarea>
+  app.innerHTML=`<h1>${draft.id?'Edit':'Create'} quiz</h1><div class="card"><input id="t" placeholder="Quiz title" value="${esc(draft.title)}"></div><div id="qs"></div><div class="row"><button class="sec" id="add">+ Add question</button><button class="sec" id="save">💾 Save</button><button id="launch">🚀 Save &amp; launch</button><button class="sec" id="back">Cancel</button></div><p class="mu" id="err"></p>`;
+  const paint=()=>{
+    $('#qs').innerHTML=draft.qs.map((q,i)=>`<div class="card"><div class="row"><b class="grow">Question ${i+1}</b>
+      <div style="display:flex;gap:4px">
+        <button class="sec btn-sm" data-up="${i}" ${i===0?'disabled':''}>▲</button>
+        <button class="sec btn-sm" data-down="${i}" ${i===draft.qs.length-1?'disabled':''}>▼</button>
+        ${draft.qs.length>1?`<button class="sec btn-sm" data-del="${i}">✕</button>`:''}
+      </div>
+    </div>
+    <textarea rows="2" data-q="${i}" placeholder="Question text" style="margin-top:8px">${esc(q.q)}</textarea>
     ${q.o.map((o,j)=>`<div class="row" style="margin-top:8px"><input type="radio" name="r${i}" data-r="${i}:${j}" ${q.a===j?'checked':''} style="width:auto"><input class="grow" data-o="${i}:${j}" placeholder="Option ${'ABCD'[j]}" value="${esc(o)}"></div>`).join('')}<p class="mu">Select the radio button next to the correct option.</p></div>`).join('');
     app.querySelectorAll('[data-q]').forEach(e=>e.oninput=()=>draft.qs[+e.dataset.q].q=e.value);
     app.querySelectorAll('[data-o]').forEach(e=>e.oninput=()=>{const[a,b]=e.dataset.o.split(':');draft.qs[a].o[b]=e.value});
     app.querySelectorAll('[data-r]').forEach(e=>e.onchange=()=>{const[a,b]=e.dataset.r.split(':');draft.qs[a].a=+b});
-    app.querySelectorAll('[data-del]').forEach(e=>e.onclick=()=>{draft.qs.splice(+e.dataset.del,1);paint()})};
+    app.querySelectorAll('[data-del]').forEach(e=>e.onclick=()=>{draft.qs.splice(+e.dataset.del,1);paint()});
+    app.querySelectorAll('[data-up]').forEach(e=>e.onclick=()=>{const i=+e.dataset.up;if(i>0){const tmp=draft.qs[i];draft.qs[i]=draft.qs[i-1];draft.qs[i-1]=tmp;paint()}});
+    app.querySelectorAll('[data-down]').forEach(e=>e.onclick=()=>{const i=+e.dataset.down;if(i<draft.qs.length-1){const tmp=draft.qs[i];draft.qs[i]=draft.qs[i+1];draft.qs[i+1]=tmp;paint()}});
+  };
   paint();$('#t').oninput=e=>draft.title=e.target.value;$('#add').onclick=()=>{draft.qs.push({q:'',o:['','','',''],a:0});paint()};$('#back').onclick=hostHome;
-  const submit=launch=>{const qs=draft.qs.map(q=>({q:q.q.trim(),o:q.o.map(x=>x.trim()),a:q.a}));
-    // keep correct index valid after dropping blank options
+  const submit=launch=>{
+    const qs=draft.qs.map(q=>({q:q.q.trim(),o:q.o.map(x=>x.trim()),a:q.a}));
     const fixed=qs.map(q=>{const keep=q.o.map((x,i)=>x?i:-1).filter(i=>i>=0);return{q:q.q,o:keep.map(i=>q.o[i]),a:keep.indexOf(q.a)}});
     if(!draft.title.trim()||fixed.some(q=>!q.q||q.o.length<2||q.a<0)){$('#err').textContent='Add a title, and for each question the text, at least 2 options, and a filled-in correct answer.';return}
-    tx({t:'save_quiz',id:draft.id,title:draft.title,qs:fixed,launch})};$('#launch').onclick=()=>submit(true);$('#save').onclick=()=>submit(false)
+    tx({t:'save_quiz',id:draft.id,title:draft.title,qs:fixed,launch});
+  };
+  $('#launch').onclick=()=>submit(true);$('#save').onclick=()=>submit(false);
 }
+
+/* Host Active Run View */
 function hostRender(){
-  const v=view,n=v.qs.length,cur=v.cur,revd=v.rev===cur&&cur>=0;
-  let h=`<div class="row"><button class="sec" id="home">← All quizzes</button></div><h1>${esc(v.title)}</h1><div class="card"><div class="row"><div class="grow"><div class="mu">Join code</div><div class="code">${v.code}</div><div class="mu">${esc(location.origin)}/#${v.code}</div></div><div id="qr"></div></div></div>`;
-  h+=`<div class="card"><div class="row"><h2 class="grow">${v.status==='ended'?'Quiz ended':cur<0?'Lobby — waiting to start':`Question ${cur+1} of ${n}`}</h2><span class="mu">${v.rows.length} joined · ${cur>=0?v.per[cur].length+' answered':''}</span></div>`;
-  if(cur>=0&&v.status!=='ended'){const q=v.qs[cur];h+=`<p><b>${esc(q.q)}</b></p>`+q.o.map((o,i)=>`<div class="mu">${i===q.a?'✅':'•'} ${'ABCDEF'[i]}. ${esc(o)} — ${v.per[cur].filter(r=>r.c===i).length} votes</div>`).join('')}
-  h+='<div class="row" style="margin-top:14px">';
-  if(v.status!=='ended'){h+=`<button id="next">${cur<0?'▶ Start quiz':cur>=n-1?'Finish quiz':'Next question ▶'}</button>`;if(cur>=0&&!revd)h+=`<button class="sec" id="rev">Reveal answer &amp; leaderboard</button>`}
+  const v=view; if(!v) return;
+  const n=v.qs.length, cur=v.cur, revd=v.rev===cur && cur>=0, optLive=v.optLive;
+  let h=`<div class="row"><button class="sec" id="home">← All quizzes</button><button class="sec" id="addLiveQ">+ Push Live Question</button></div>
+  <h1>${esc(v.title)}</h1>
+  <div class="card"><div class="row"><div class="grow"><div class="mu">Join code</div><div class="code">${v.code}</div><div class="mu">${esc(location.origin)}/#${v.code}</div></div><div id="qr"></div></div></div>`;
+
+  // Status & Current Question Control Card
+  h+=`<div class="card"><div class="row"><h2 class="grow">${v.status==='ended'?'🏁 Quiz ended':cur<0?'Lobby — waiting to start':`Question ${cur+1} of ${n}`}</h2>
+    <span class="mu">${v.rows.length} joined · ${cur>=0?v.per[cur].length+' answered':''}</span></div>`;
+
+  if(cur>=0 && v.status!=='ended'){
+    const q=v.qs[cur];
+    h+=`<div style="margin:10px 0 14px"><b style="font-size:18px">${esc(q.q)}</b></div>`;
+    if(!optLive){
+      h+=`<div class="row" style="margin:6px 0 12px"><span class="tag warn">📢 QUESTION ONLY (Options Hidden From Players)</span></div>`;
+    } else {
+      h+=`<div class="row" style="margin:6px 0 12px"><span class="tag">⚡ OPTIONS LIVE FOR PLAYERS</span></div>`;
+    }
+    h+=q.o.map((o,i)=>{
+      const votes=v.per[cur].filter(r=>r.c===i).length;
+      return `<div class="mu" style="margin:4px 0">${i===q.a?'✅':'•'} ${'ABCDEF'[i]}. ${esc(o)} — <b>${votes} votes</b> ${!optLive?'(🔒 hidden on phones)':''}</div>`;
+    }).join('');
+  }
+
+  // Action Buttons
+  h+='<div class="row" style="margin-top:16px">';
+  if(v.status!=='ended'){
+    if(cur<0){
+      h+=`<button id="startKbc" class="kbc">▶ Start (Show Question 1 First · KBC)</button>`;
+      h+=`<button id="startDirect" class="sec">⚡ Start (Question + Options Together)</button>`;
+    } else {
+      if(!optLive && !revd){
+        h+=`<button id="revOpts" class="kbc">🎵 Reveal Options (Play KBC Sound)</button>`;
+        h+=`<button id="revOptsSilent" class="sec">Reveal Options (Silent)</button>`;
+      } else if(!revd){
+        h+=`<button id="rev" class="sec">Reveal Answer &amp; Leaderboard</button>`;
+      }
+      if(cur < n-1){
+        h+=`<button id="nextKbc" class="kbc">▶ Next (Question First · KBC)</button>`;
+        h+=`<button id="nextDirect" class="sec">⚡ Next (With Options)</button>`;
+      } else {
+        h+=`<button id="finish">🏁 Finish Quiz</button>`;
+      }
+    }
+  }
   h+=`<button id="again" class="${v.status==='ended'?'':'sec'}">🔁 Launch again with new players</button>`;
   h+='</div></div>';
-  h+=`<div class="card"><h2>🏆 Live leaderboard</h2>${v.rows.length?`<div class="wrap"><table><tr><th>#</th><th>Name</th><th>Vidyut ⚡</th></tr>${v.rows.map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.name)}</td><td>${r.score}</td></tr>`).join('')}</table></div>`:'<p class="mu">Nobody has joined yet.</p>'}</div>`;
-  h+=`<div class="card"><h2>⚡ Correct &amp; fastest, per question</h2>`+v.per.map((l,i)=>{if(i>cur&&v.status!=='ended')return '';const ok=l.filter(r=>r.ok);
-    return `<div class="q"><b>Q${i+1}. ${esc(v.qs[i].q)}</b>${ok.length?`<div style="margin:6px 0"><span class="tag">FIRST CORRECT</span> <b>${esc(ok[0].name)}</b> <span class="mu">(${(ok[0].ms/1000).toFixed(2)}s)</span> <b>+${ok[0].pts} ⚡</b></div>`:'<div class="mu">No correct answer yet.</div>'}${ok.length>1?`<div class="mu">Then: ${ok.slice(1).map(r=>esc(r.name)+' '+(r.ms/1000).toFixed(2)+'s (+'+r.pts+')').join(' · ')}</div>`:''}<div class="mu">${l.length} answered, ${ok.length} correct</div></div>`}).join('')+'</div>';
+
+  // Leaderboard with Anti-Cheat Tab Monitor Switcher
+  const totalSwitches = (v.switches||[]).reduce((sum, p)=>sum + (p.sw||0), 0);
+  h+=`<div class="card">
+    <div class="tabs">
+      <button class="tab-btn ${hostTab==='scores'?'active':''}" id="tabScores">🏆 Score Leaderboard (${v.rows.length})</button>
+      <button class="tab-btn ${hostTab==='switches'?'active':''}" id="tabSwitches">👀 Anti-Cheat Tab Monitor ${totalSwitches>0?`<span class="tag danger" style="margin-left:4px">${totalSwitches}</span>`:''}</button>
+    </div>`;
+
+  if(hostTab==='scores'){
+    h+=v.rows.length?`<div class="wrap"><table><tr><th>#</th><th>Name</th><th>Vidyut ⚡</th><th>Correct</th></tr>${v.rows.map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.name)}</td><td><b>${r.score}</b></td><td>${r.cor||0}/${n}</td></tr>`).join('')}</table></div>`:'<p class="mu">Nobody has joined yet.</p>';
+  } else {
+    // Tab Switch Anti-Cheat View
+    h+=`<p class="mu" style="margin-top:0">Real-time mobile/desktop browser tab switch detector. Only visible to you (the host).</p>`;
+    const sws = v.switches || [];
+    if(!sws.length) {
+      h+='<p class="mu">No players in session.</p>';
+    } else {
+      h+=`<div class="wrap"><table><tr><th>#</th><th>Player Name</th><th>Tab Switches</th><th>Risk Status</th></tr>${sws.map((p,i)=>{
+        const count=p.sw||0;
+        let badge='<span class="tag">Clean 🟢</span>';
+        if(count>=3) badge='<span class="tag danger">Suspicious 🔴</span>';
+        else if(count>=1) badge='<span class="tag warn">Warning 🟡</span>';
+        return `<tr><td>${i+1}</td><td><b>${esc(p.name)}</b></td><td><span style="font-size:16px;font-weight:700">${count}</span></td><td>${badge}</td></tr>`;
+      }).join('')}</table></div>`;
+    }
+  }
+  h+='</div>';
+
+  // Manage Questions & Reorder in Session (Features 1, 2, 3)
+  h+=`<div class="card"><div class="row"><h2 class="grow">📋 Questions in Session (${n})</h2><button class="sec btn-sm" id="addLiveQ2">+ Add Question</button></div>
+  <p class="mu" style="margin:0 0 10px">Edit questions, retake bad questions, or rearrange order on-the-fly.</p>`;
+  h+=v.qs.map((q, i)=>{
+    const isCur = i === cur;
+    const ok = v.per[i]?.filter(r=>r.ok) || [];
+    return `<div class="q" style="${isCur?'border-color:var(--ac2);background:rgba(34,211,238,.07)':''}">
+      <div class="row">
+        <b class="grow">Q${i+1}. ${esc(q.q)} ${isCur?'<span class="tag">ACTIVE NOW</span>':''}</b>
+        <div style="display:flex;gap:4px">
+          <button class="sec btn-sm" data-swup="${i}" ${i===0?'disabled':''}>▲</button>
+          <button class="sec btn-sm" data-swdn="${i}" ${i===n-1?'disabled':''}>▼</button>
+          <button class="sec btn-sm" data-editq="${i}">✏️ Edit / Retake</button>
+        </div>
+      </div>
+      <div class="mu" style="margin-top:6px">${q.o.map((o,oi)=>`${oi===q.a?'✅':'•'} ${'ABCD'[oi]||oi}: ${esc(o)}`).join('  |  ')}</div>
+      <div class="mu" style="margin-top:4px">${v.per[i]?.length||0} answered, ${ok.length} correct</div>
+    </div>`;
+  }).join('')+'</div>';
+
+  // Correct & Fastest Per Question
+  h+=`<div class="card"><h2>⚡ Correct &amp; fastest, per question</h2>`+v.per.map((l,i)=>{
+    if(i>cur && v.status!=='ended') return '';
+    const ok=l.filter(r=>r.ok);
+    return `<div class="q"><b>Q${i+1}. ${esc(v.qs[i].q)}</b>${ok.length?`<div style="margin:6px 0"><span class="tag">FIRST CORRECT</span> <b>${esc(ok[0].name)}</b> <span class="mu">(${(ok[0].ms/1000).toFixed(2)}s)</span> <b>+${ok[0].pts} ⚡</b></div>`:'<div class="mu">No correct answer yet.</div>'}${ok.length>1?`<div class="mu">Then: ${ok.slice(1).map(r=>esc(r.name)+' '+(r.ms/1000).toFixed(2)+'s (+'+r.pts+')').join(' · ')}</div>`:''}<div class="mu">${l.length} answered, ${ok.length} correct</div></div>`;
+  }).join('')+'</div>';
+
   app.innerHTML=h;
-  if(qrFor!==v.code){qrBox=document.createElement('div');new QRCode(qrBox,{text:location.origin+'/#'+v.code,width:150,height:150});qrFor=v.code}
+
+  // QR Code
+  if(qrFor!==v.code){
+    qrBox=document.createElement('div');
+    new QRCode(qrBox,{text:location.origin+'/#'+v.code,width:150,height:150});
+    qrFor=v.code;
+  }
   $('#qr').appendChild(qrBox);
-  $('#home').onclick=hostHome;const ag=$('#again');if(ag)ag.onclick=()=>{if(v.status==='ended'||confirm('Start a fresh run with a new code? This session stays saved.')){ag.disabled=true;tx({t:'relaunch',code:v.code})}};const nx=$('#next');if(nx)nx.onclick=()=>{nx.disabled=true;tx({t:'next'})};const rv=$('#rev');if(rv)rv.onclick=()=>{rv.disabled=true;tx({t:'reveal'})};
+
+  // Tab listeners
+  $('#tabScores').onclick=()=>{hostTab='scores';hostRender()};
+  $('#tabSwitches').onclick=()=>{hostTab='switches';hostRender()};
+
+  // Nav actions
+  $('#home').onclick=hostHome;
+  const ag=$('#again');if(ag)ag.onclick=()=>{if(v.status==='ended'||confirm('Start a fresh run with a new code? This session stays saved.')){ag.disabled=true;tx({t:'relaunch',code:v.code})}};
+
+  // Start & Next actions
+  const sk=$('#startKbc');if(sk)sk.onclick=()=>{sk.disabled=true;playQuestionDrone();tx({t:'next',showOptions:false})};
+  const sd=$('#startDirect');if(sd)sd.onclick=()=>{sd.disabled=true;playKbcSound();tx({t:'next',showOptions:true})};
+  const nk=$('#nextKbc');if(nk)nk.onclick=()=>{nk.disabled=true;playQuestionDrone();tx({t:'next',showOptions:false})};
+  const nd=$('#nextDirect');if(nd)nd.onclick=()=>{nd.disabled=true;playKbcSound();tx({t:'next',showOptions:true})};
+  const fn=$('#finish');if(fn)fn.onclick=()=>{fn.disabled=true;tx({t:'next'})};
+
+  // Reveal options
+  const ro=$('#revOpts');if(ro)ro.onclick=()=>{ro.disabled=true;playKbcSound();tx({t:'reveal_options'})};
+  const ros=$('#revOptsSilent');if(ros)ros.onclick=()=>{ros.disabled=true;tx({t:'reveal_options'})};
+  const rv=$('#rev');if(rv)rv.onclick=()=>{rv.disabled=true;tx({t:'reveal'})};
+
+  // Push Live Question modals
+  const openPushModal=()=>{
+    openModal(`<h2>➕ Push Live Question to Session</h2>
+      <p class="mu">Add a new question into this ongoing session without interrupting existing scores.</p>
+      <input id="lqText" placeholder="Question text" style="margin-bottom:10px">
+      ${[0,1,2,3].map(i=>`<div class="row" style="margin-bottom:8px">
+        <input type="radio" name="lqAns" value="${i}" ${i===0?'checked':''} style="width:auto">
+        <input class="grow" id="lqOpt${i}" placeholder="Option ${'ABCD'[i]}">
+      </div>`).join('')}
+      <p class="mu">Select correct answer above.</p>
+      <div style="margin:12px 0">
+        <label class="mu">Question Placement:</label>
+        <div class="row" style="margin-top:6px">
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="radio" name="lqPos" value="next" ${cur>=0&&cur<n-1?'checked':''} style="width:auto"> Insert as Next Question (Q${cur+2})</label>
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="radio" name="lqPos" value="end" ${cur>=n-1||cur<0?'checked':''} style="width:auto"> Add to End of Quiz (Q${n+1})</label>
+        </div>
+      </div>
+      <div class="row" style="margin-top:16px">
+        <button id="lqSubmit">🚀 Push Question</button>
+        <button class="sec" onclick="closeModal()">Cancel</button>
+      </div>
+      <p class="mu" id="lqErr" style="color:var(--bad)"></p>`);
+    $('#lqSubmit').onclick=()=>{
+      const qText=$('#lqText').value.trim();
+      const opts=[0,1,2,3].map(i=>$(`#lqOpt${i}`).value.trim()).filter(Boolean);
+      const selRad=$('input[name="lqAns"]:checked');
+      const ans=selRad?+selRad.value:0;
+      const isNext=$('input[name="lqPos"]:checked')?.value==='next';
+      if(!qText || opts.length<2 || ans>=opts.length){
+        $('#lqErr').textContent='Please enter question text, at least 2 options, and select a valid correct answer.';
+        return;
+      }
+      tx({t:'add_session_question', q:{q:qText, o:opts, a:ans}, insertAfterCur:isNext});
+      closeModal();
+    };
+  };
+  const alq=$('#addLiveQ'); if(alq) alq.onclick=openPushModal;
+  const alq2=$('#addLiveQ2'); if(alq2) alq2.onclick=openPushModal;
+
+  // Edit / Retake Question in Session (Feature 1)
+  app.querySelectorAll('[data-editq]').forEach(btn=>{
+    btn.onclick=()=>{
+      const idx=+btn.dataset.editq;
+      const q=v.qs[idx];
+      openModal(`<h2>✏️ Edit Question ${idx+1}</h2>
+        <p class="mu">Update this question or retake it live with players.</p>
+        <input id="eqText" value="${esc(q.q)}" placeholder="Question text" style="margin-bottom:10px">
+        ${[0,1,2,3].map(i=>`<div class="row" style="margin-bottom:8px">
+          <input type="radio" name="eqAns" value="${i}" ${q.a===i?'checked':''} style="width:auto">
+          <input class="grow" id="eqOpt${i}" value="${esc(q.o[i]||'')}" placeholder="Option ${'ABCD'[i]}">
+        </div>`).join('')}
+        <p class="mu">Select correct answer above.</p>
+        <div style="margin:14px 0;padding:12px;background:rgba(255,214,10,.08);border:1px dashed var(--ac);border-radius:12px">
+          <label style="display:flex;align-items:center;gap:8px;font-weight:600;cursor:pointer">
+            <input type="checkbox" id="eqRetake" style="width:auto"> 🔄 Retake this question live (clears previous answers for this question)
+          </label>
+          <small class="mu" style="display:block;margin-top:4px">If checked, this question immediately becomes active and players can submit answers again.</small>
+        </div>
+        <div class="row" style="margin-top:16px">
+          <button id="eqSubmit">💾 Save Changes</button>
+          <button class="sec" onclick="closeModal()">Cancel</button>
+        </div>
+        <p class="mu" id="eqErr" style="color:var(--bad)"></p>`);
+      $('#eqSubmit').onclick=()=>{
+        const qText=$('#eqText').value.trim();
+        const opts=[0,1,2,3].map(i=>$(`#eqOpt${i}`).value.trim()).filter(Boolean);
+        const selRad=$('input[name="eqAns"]:checked');
+        const ans=selRad?+selRad.value:0;
+        const retake=$('#eqRetake').checked;
+        if(!qText || opts.length<2 || ans>=opts.length){
+          $('#eqErr').textContent='Please enter question text, at least 2 options, and select a valid correct answer.';
+          return;
+        }
+        if(retake) playQuestionDrone();
+        tx({t:'edit_session_question', idx, q:{q:qText, o:opts, a:ans}, retake, showOptions:false});
+        closeModal();
+      };
+    };
+  });
+
+  // Reorder Questions in Session (Feature 3)
+  app.querySelectorAll('[data-swup]').forEach(btn=>{
+    btn.onclick=()=>{
+      const i=+btn.dataset.swup;
+      if(i>0) tx({t:'swap_session_questions', i, j:i-1});
+    };
+  });
+  app.querySelectorAll('[data-swdn]').forEach(btn=>{
+    btn.onclick=()=>{
+      const i=+btn.dataset.swdn;
+      if(i<n-1) tx({t:'swap_session_questions', i, j:i+1});
+    };
+  });
 }
-connect();route();
-setInterval(()=>{if(ws&&ws.readyState===1)tx({t:'ping'})},25000); // keeps the connection (and Render's free instance) awake
+
+connect();
+route();
+setInterval(()=>{if(ws&&ws.readyState===1)tx({t:'ping'})},25000);
 </script></body></html>
