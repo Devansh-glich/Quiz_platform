@@ -17,8 +17,8 @@ ADMIN_PASSWORD=choose-a-password npm start     # Windows PowerShell: $env:ADMIN_
 - `public/index.html` — participant and host UI (host at `/#host`).
 - `package.json` — dependencies (`express`, `ws`).
 
-## Scoring
-1000 per correct answer + up to 500 speed bonus (0.1 s = 1 point), measured from when the host opened the question.
+## Scoring (Vidyut currency ⚡)
+Per question, ranked by the order answers reach the server: 1st correct = 1000, 2nd correct = 800, 3rd correct = 700, every later correct answer = 500, a wrong answer = 100, no answer = 0. Equal totals are ranked by more correct answers, then lower total answer time.
 
 ## Notes
 - Default password is `admin123` — always set `ADMIN_PASSWORD`.

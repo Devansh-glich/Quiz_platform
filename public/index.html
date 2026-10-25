@@ -48,22 +48,23 @@ const $=s=>document.querySelector(s),app=$('#app');
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid=()=>(window.crypto&&crypto.randomUUID)?crypto.randomUUID():Array.from({length:4},()=>Math.random().toString(36).slice(2)).join('');
 let pid;try{pid=localStorage.pid||(localStorage.pid=uid())}catch(e){pid=uid()}
-let ws,hello=null,name=(()=>{try{return localStorage.qname||''}catch(e){return ''}})(),pw='',view=null,draft=null,scanStream=null,qrBox=null,qrFor='',isHost=false;
+let ws,hello=null,hostCode=null,lastStr='',name=(()=>{try{return localStorage.qname||''}catch(e){return ''}})(),pw='',view=null,draft=null,scanStream=null,qrBox=null,qrFor='',isHost=false;
 
 function connect(){
   ws=new WebSocket((location.protocol==='https:'?'wss':'ws')+'://'+location.host);
   ws.onopen=()=>hello&&hello();
   ws.onmessage=e=>{const m=JSON.parse(e.data);
     if(m.t==='error'){if(m.msg==='Wrong password'){pw='';sessionStorage.removeItem('pw');hello=null}const el=$('#err');if(el)el.textContent=m.msg;else alert(m.msg);return}
-    if(m.t==='admin_ok'){sessionStorage.pw=pw;hostHome();return}
+    if(m.t==='admin_ok'){sessionStorage.pw=pw;if(hostCode)tx({t:'open',code:hostCode});else hostHome();return}
     if(m.t==='list'){return hostList(m.items)}
     if(m.t==='quizzes'){return hostQuizzes(m.items)}
     if(m.t==='saved'){hostHome();return}
-    view=m;m.t==='host'?hostRender():playRender()};
+    if(m.t==='play'){if(e.data===lastStr)return;lastStr=e.data}
+    view=m;if(m.t==='host')hostCode=m.code;m.t==='host'?hostRender():playRender()};
   ws.onclose=()=>setTimeout(connect,1500);
 }
 const tx=o=>ws.readyState===1&&ws.send(JSON.stringify(o));
-function route(){stopScan();view=null;hello=null;isHost=location.hash==='#host';isHost?hostLogin():home(location.hash.slice(1).toUpperCase())}
+function route(){stopScan();view=null;hello=null;lastStr='';hostCode=null;isHost=location.hash==='#host';isHost?hostLogin():home(location.hash.slice(1).toUpperCase())}
 addEventListener('hashchange',route);
 
 /* ---- participant ---- */
@@ -85,12 +86,12 @@ function playRender(){
     h+=`<div class="card"><p class="mu">Question ${v.cur+1} of ${v.n}</p><h2>${esc(v.q.q)}</h2>`+v.q.o.map((o,i)=>{let cl='opt';if(ans&&ans.c===i)cl+=' sel';if(rev!==null){if(i===rev)cl+=' ok';else if(ans&&ans.c===i)cl+=' no'}
       return `<button class="${cl}" data-i="${i}" ${locked?'disabled':''}>${'ABCDEF'[i]}. ${esc(o)}</button>`}).join('');
     h+=ans?`<p class="mu">✅ Answer locked in. Wait for the next question.</p>`:rev!==null?`<p class="mu">Time's up for this question.</p>`:'';
-    if(rev!==null&&ans)h+=`<p><b>${ans.c===rev?'🎉 Correct!':'❌ Not quite.'}</b></p>`;h+='</div>';
+    if(rev!==null&&ans)h+=`<p><b>${ans.c===rev?'🎉 Correct!':'❌ Not quite.'}</b> <span class="tag">+${v.pts??0} ⚡</span></p>`;h+='</div>';
     if(rev!==null)h+=`<div class="card"><h2>Leaderboard</h2>${boardHTML(v.board,false)}</div>`}
   app.innerHTML=h;app.querySelectorAll('.opt').forEach(b=>b.onclick=()=>tx({t:'answer',i:+b.dataset.i}));
 }
 function boardHTML(b,all){if(!b?.length)return '<p class="mu">No scores yet.</p>';const me=b.findIndex(r=>r.id===pid);
-  return `<div class="wrap"><table><tr><th>#</th><th>Name</th><th>Score</th></tr>${b.slice(0,all?50:10).map((r,i)=>`<tr ${r.id===pid?'style="font-weight:700"':''}><td>${i+1}</td><td>${esc(r.name)}</td><td>${r.score}</td></tr>`).join('')}</table></div>${me>=10&&!all?`<p class="mu">You: #${me+1} · ${b[me].score}</p>`:''}`}
+  return `<div class="wrap"><table><tr><th>#</th><th>Name</th><th>Vidyut ⚡</th></tr>${b.slice(0,all?50:10).map((r,i)=>`<tr ${r.id===pid?'style="font-weight:700"':''}><td>${i+1}</td><td>${esc(r.name)}</td><td>${r.score}</td></tr>`).join('')}</table></div>${me>=10&&!all?`<p class="mu">You: #${me+1} · ${b[me].score}</p>`:''}`}
 async function startScan(){const er=$('#err');
   try{scanStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}})}catch{er.textContent='Camera unavailable (needs HTTPS or localhost). Type the code instead.';return}
   $('#scanbox').innerHTML='<video id="vid" playsinline muted></video>';const v=$('#vid');v.srcObject=scanStream;await v.play();
@@ -108,7 +109,7 @@ function hostLogin(){
   $('#pw').focus();
 }
 let QZ=[];
-function hostHome(){hello=()=>tx({t:'admin',pw});app.innerHTML=`<h1>Vidyut <span>Quiz</span> · Host</h1><p class="mu">Save a quiz once, then launch it as many times as you like.</p><div class="card"><div class="row"><h2 class="grow">📚 My quizzes</h2><button id="new">+ Create quiz</button></div><div id="qz" class="mu">Loading…</div></div><div class="card"><h2>🕘 Past &amp; live sessions</h2><div id="list" class="mu">Loading…</div></div>`;
+function hostHome(){hostCode=null;hello=()=>tx({t:'admin',pw});app.innerHTML=`<h1>Vidyut <span>Quiz</span> · Host</h1><p class="mu">Save a quiz once, then launch it as many times as you like.</p><div class="card"><div class="row"><h2 class="grow">📚 My quizzes</h2><button id="new">+ Create quiz</button></div><div id="qz" class="mu">Loading…</div></div><div class="card"><h2>🕘 Past &amp; live sessions</h2><div id="list" class="mu">Loading…</div></div>`;
   $('#new').onclick=()=>{draft={title:'',qs:[{q:'',o:['','','',''],a:0}]};editor()};tx({t:'quizzes'});tx({t:'list'})}
 function hostQuizzes(items){QZ=items;const el=$('#qz');if(!el)return;
   el.innerHTML=items.length?items.map(z=>`<div class="row" style="margin:8px 0"><div class="grow"><b>${esc(z.title)}</b><div class="mu">${z.qs.length} questions</div></div><button data-l="${z.id}">🚀 Launch</button><button class="sec" data-e="${z.id}">Edit</button><button class="sec" data-d="${z.id}">Delete</button></div>`).join(''):'No saved quizzes yet. Create one!';
@@ -142,14 +143,16 @@ function hostRender(){
   if(cur>=0&&v.status!=='ended'){const q=v.qs[cur];h+=`<p><b>${esc(q.q)}</b></p>`+q.o.map((o,i)=>`<div class="mu">${i===q.a?'✅':'•'} ${'ABCDEF'[i]}. ${esc(o)} — ${v.per[cur].filter(r=>r.c===i).length} votes</div>`).join('')}
   h+='<div class="row" style="margin-top:14px">';
   if(v.status!=='ended'){h+=`<button id="next">${cur<0?'▶ Start quiz':cur>=n-1?'Finish quiz':'Next question ▶'}</button>`;if(cur>=0&&!revd)h+=`<button class="sec" id="rev">Reveal answer &amp; leaderboard</button>`}
+  h+=`<button id="again" class="${v.status==='ended'?'':'sec'}">🔁 Launch again with new players</button>`;
   h+='</div></div>';
-  h+=`<div class="card"><h2>🏆 Live leaderboard</h2>${v.rows.length?`<div class="wrap"><table><tr><th>#</th><th>Name</th><th>Score</th></tr>${v.rows.map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.name)}</td><td>${r.score}</td></tr>`).join('')}</table></div>`:'<p class="mu">Nobody has joined yet.</p>'}</div>`;
+  h+=`<div class="card"><h2>🏆 Live leaderboard</h2>${v.rows.length?`<div class="wrap"><table><tr><th>#</th><th>Name</th><th>Vidyut ⚡</th></tr>${v.rows.map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.name)}</td><td>${r.score}</td></tr>`).join('')}</table></div>`:'<p class="mu">Nobody has joined yet.</p>'}</div>`;
   h+=`<div class="card"><h2>⚡ Correct &amp; fastest, per question</h2>`+v.per.map((l,i)=>{if(i>cur&&v.status!=='ended')return '';const ok=l.filter(r=>r.ok);
-    return `<div class="q"><b>Q${i+1}. ${esc(v.qs[i].q)}</b>${ok.length?`<div style="margin:6px 0"><span class="tag">FIRST CORRECT</span> <b>${esc(ok[0].name)}</b> <span class="mu">(${(ok[0].ms/1000).toFixed(2)}s)</span></div>`:'<div class="mu">No correct answer yet.</div>'}${ok.length>1?`<div class="mu">Then: ${ok.slice(1).map(r=>esc(r.name)+' '+(r.ms/1000).toFixed(2)+'s').join(' · ')}</div>`:''}<div class="mu">${l.length} answered, ${ok.length} correct</div></div>`}).join('')+'</div>';
+    return `<div class="q"><b>Q${i+1}. ${esc(v.qs[i].q)}</b>${ok.length?`<div style="margin:6px 0"><span class="tag">FIRST CORRECT</span> <b>${esc(ok[0].name)}</b> <span class="mu">(${(ok[0].ms/1000).toFixed(2)}s)</span> <b>+${ok[0].pts} ⚡</b></div>`:'<div class="mu">No correct answer yet.</div>'}${ok.length>1?`<div class="mu">Then: ${ok.slice(1).map(r=>esc(r.name)+' '+(r.ms/1000).toFixed(2)+'s (+'+r.pts+')').join(' · ')}</div>`:''}<div class="mu">${l.length} answered, ${ok.length} correct</div></div>`}).join('')+'</div>';
   app.innerHTML=h;
   if(qrFor!==v.code){qrBox=document.createElement('div');new QRCode(qrBox,{text:location.origin+'/#'+v.code,width:150,height:150});qrFor=v.code}
   $('#qr').appendChild(qrBox);
-  $('#home').onclick=hostHome;const nx=$('#next');if(nx)nx.onclick=()=>{nx.disabled=true;tx({t:'next'})};const rv=$('#rev');if(rv)rv.onclick=()=>{rv.disabled=true;tx({t:'reveal'})};
+  $('#home').onclick=hostHome;const ag=$('#again');if(ag)ag.onclick=()=>{if(v.status==='ended'||confirm('Start a fresh run with a new code? This session stays saved.')){ag.disabled=true;tx({t:'relaunch',code:v.code})}};const nx=$('#next');if(nx)nx.onclick=()=>{nx.disabled=true;tx({t:'next'})};const rv=$('#rev');if(rv)rv.onclick=()=>{rv.disabled=true;tx({t:'reveal'})};
 }
 connect();route();
+setInterval(()=>{if(ws&&ws.readyState===1)tx({t:'ping'})},25000); // keeps the connection (and Render's free instance) awake
 </script></body></html>
