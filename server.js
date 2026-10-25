@@ -14,11 +14,18 @@ const save = () => { if (!timer) timer = setTimeout(writeNow, 300); };
 ['SIGINT', 'SIGTERM'].forEach(sig => process.on(sig, () => { writeNow(); process.exit(); }));
 const quizList = () => Object.values(D.quizzes).sort((a, b) => b.updated - a.updated);
 const sessionList = () => Object.entries(S).map(([code, q]) => ({ code, title: q.title, status: q.status, players: Object.keys(q.players).length }));
+function cleanSingleQuestion(q) {
+  if (!q) return null;
+  const text = String(q.q || '').trim().slice(0, 300);
+  const opts = (Array.isArray(q.o) ? q.o : []).map(x => String(x).trim().slice(0, 150)).filter(Boolean).slice(0, 6);
+  const ans = q.a | 0;
+  if (!text || opts.length < 2 || ans < 0 || ans >= opts.length) return null;
+  return { q: text, o: opts, a: ans };
+}
 function cleanQuiz(m) {
-  const qs = Array.isArray(m.qs) ? m.qs.slice(0, 100).map(q => ({ q: String(q.q || '').trim().slice(0, 300),
-    o: (Array.isArray(q.o) ? q.o : []).map(x => String(x).trim().slice(0, 150)).filter(Boolean).slice(0, 6), a: q.a | 0 })) : [];
+  const qs = Array.isArray(m.qs) ? m.qs.slice(0, 100).map(cleanSingleQuestion).filter(Boolean) : [];
   const title = String(m.title || '').trim().slice(0, 120);
-  return (!title || !qs.length || qs.some(q => !q.q || q.o.length < 2 || q.a < 0 || q.a >= q.o.length)) ? null : { title, qs };
+  return (!title || !qs.length || qs.length !== (m.qs || []).length) ? null : { title, qs };
 }
 const app = express(); app.use(express.static(path.join(__dirname, 'public')));
 const server = http.createServer(app), wss = new WebSocketServer({ server, maxPayload: 2e5 });
@@ -28,7 +35,7 @@ const send = (ws, o) => ws.readyState === 1 && ws.send(JSON.stringify(o));
 
 // Scoring (Vidyut currency): 1st correct 1000, 2nd 800, 3rd 700, later correct 500, wrong answer 100. 'First' = arrival order at the server.
 function stats(s) {
-  const per = s.qs.map((q, i) => Object.entries(s.players).filter(([, p]) => p.a[i]).map(([id, p]) => ({
+  const per = s.qs.map((q, i) => Object.entries(s.players).filter(([, p]) => p.a && p.a[i]).map(([id, p]) => ({
     id, name: p.name, c: p.a[i].c, ok: p.a[i].c === q.a, n: p.a[i].n || 0, ms: Math.max(0, p.a[i].t - (s.qStart[i] || p.a[i].t))
   })).sort((x, y) => (x.n - y.n) || (x.ms - y.ms))); // n = order the server received the answer
   const PTS = [1000, 800, 700], LATE = 500, WRONG = 100; // Vidyut currency
@@ -36,21 +43,27 @@ function stats(s) {
   const rows = Object.entries(s.players).map(([id, p]) => {
     let score = 0, tms = 0, cor = 0;
     per.forEach(l => { const r = l.find(x => x.id === id); if (r) { score += r.pts; if (r.ok) { tms += r.ms; cor++; } } });
-    return { id, name: p.name, score, tms, cor };
+    return { id, name: p.name, score, tms, cor, sw: p.sw || 0 };
   }).sort((a, b) => (b.score - a.score) || (b.cor - a.cor) || (a.tms - b.tms)); // tie -> more correct answers, then lower total time
-  return { per, rows };
+  const switches = Object.entries(s.players).map(([id, p]) => ({
+    id, name: p.name, sw: p.sw || 0, lastSw: p.lastSw || 0
+  })).sort((a, b) => (b.sw - a.sw) || (b.lastSw - a.lastSw));
+  return { per, rows, switches };
 }
 function playerView(s, pid) {
   const cur = s.cur, p = s.players[pid] || { a: {} }, live = cur >= 0 && s.status !== 'ended';
-  const out = { t: 'play', title: s.title, n: s.qs.length, cur, status: s.status, name: p.name, mine: p.a,
-    q: live ? { q: s.qs[cur].q, o: s.qs[cur].o } : null, rev: live && s.rev === cur ? s.qs[cur].a : null };
+  const optLive = !!s.optLive || s.rev === cur || s.status === 'ended';
+  const out = { t: 'play', title: s.title, n: s.qs.length, cur, status: s.status, name: p.name, mine: p.a || {},
+    optLive: !!s.optLive,
+    q: live ? { q: s.qs[cur].q, o: optLive ? s.qs[cur].o : [] } : null, rev: live && s.rev === cur ? s.qs[cur].a : null };
   if (s.status === 'ended' || out.rev !== null) {
-    const st = stats(s); out.board = st.rows.slice(0, 50);
-    if (live) out.pts = (st.per[cur].find(r => r.id === pid) || {}).pts ?? 0; // points earned on this question
+    const st = stats(s);
+    out.board = st.rows.slice(0, 50).map(r => ({ id: r.id, name: r.name, score: r.score })); // Never leak tab switch data to participants
+    if (live && st.per[cur]) out.pts = (st.per[cur].find(r => r.id === pid) || {}).pts ?? 0; // points earned on this question
   }
   return out;
 }
-const hostView = (code, s) => ({ t: 'host', code, title: s.title, qs: s.qs, cur: s.cur, status: s.status, rev: s.rev, ...stats(s) });
+const hostView = (code, s) => ({ t: 'host', code, title: s.title, qs: s.qs, cur: s.cur, status: s.status, rev: s.rev, optLive: s.optLive !== false, ...stats(s) });
 // broadcast(code): everyone. broadcast(code, pid): host(s) + only that player (others' screens are NOT rebuilt, so taps are never lost)
 function broadcast(code, onlyPid) {
   const s = S[code]; if (!s) return;
@@ -83,8 +96,14 @@ wss.on('connection', ws => {
         const o = S[m.code]; let id = o.quizId;
         if (!D.quizzes[id]) { id = crypto.randomUUID(); D.quizzes[id] = { id, title: o.title, qs: JSON.parse(JSON.stringify(o.qs)), updated: Date.now() }; o.quizId = id; }
         const code = mkCode();
-        S[code] = { quizId: id, title: o.title, qs: JSON.parse(JSON.stringify(o.qs)), cur: -1, status: 'lobby', rev: null, qStart: {}, players: {} };
+        S[code] = { quizId: id, title: o.title, qs: JSON.parse(JSON.stringify(o.qs)), cur: -1, status: 'lobby', rev: null, optLive: true, qStart: {}, players: {} };
         c.code = code; save(); return broadcast(code);
+      }
+      if (m.t === 'restart_session' && S[m.code]) { // restart existing/past session: same code, keep connected players, clear answers/scores
+        const sess = S[m.code];
+        sess.cur = -1; sess.status = 'lobby'; sess.rev = null; sess.optLive = true; sess.qStart = {}; sess.seq = 0;
+        Object.values(sess.players).forEach(p => { p.a = {}; p.sw = 0; delete p.lastSw; });
+        c.code = m.code; save(); return broadcast(m.code);
       }
       if (m.t === 'delete_session') { delete S[m.code]; save(); return send(ws, { t: 'list', items: sessionList() }); }
       if (m.t === 'save_quiz' || m.t === 'launch') {
@@ -95,17 +114,90 @@ wss.on('connection', ws => {
         if (!qz) return;
         if (m.t === 'save_quiz' && !m.launch) { save(); return send(ws, { t: 'saved' }); }
         const code = mkCode(); // every launch is a fresh run: new code, no players, no answers
-        S[code] = { quizId: qz.id, title: qz.title, qs: JSON.parse(JSON.stringify(qz.qs)), cur: -1, status: 'lobby', rev: null, qStart: {}, players: {} };
+        S[code] = { quizId: qz.id, title: qz.title, qs: JSON.parse(JSON.stringify(qz.qs)), cur: -1, status: 'lobby', rev: null, optLive: true, qStart: {}, players: {} };
         c.code = code; save(); return broadcast(code);
       }
       if (m.t === 'open' && S[m.code]) { c.code = m.code; return broadcast(m.code); }
       if (!s) return;
       if (m.t === 'next' && s.status !== 'ended') {
         if (s.cur >= s.qs.length - 1) { s.status = 'ended'; s.rev = null; }
-        else { s.cur++; s.status = 'live'; s.rev = null; s.qStart[s.cur] = Date.now(); }
+        else {
+          s.cur++; s.status = 'live'; s.rev = null;
+          const showOpts = m.showOptions !== false;
+          s.optLive = showOpts;
+          if (showOpts) s.qStart[s.cur] = Date.now();
+          else s.qStart[s.cur] = null;
+        }
         save(); return broadcast(c.code);
       }
-      if (m.t === 'reveal' && s.cur >= 0 && s.status === 'live') { s.rev = s.cur; save(); return broadcast(c.code); }
+      if (m.t === 'reveal_options' && s.cur >= 0 && s.status === 'live' && !s.optLive) {
+        s.optLive = true;
+        s.qStart[s.cur] = Date.now();
+        save(); return broadcast(c.code);
+      }
+      if (m.t === 'reveal' && s.cur >= 0 && s.status === 'live') {
+        s.rev = s.cur;
+        s.optLive = true;
+        save(); return broadcast(c.code);
+      }
+      if (m.t === 'edit_session_question') {
+        const idx = m.idx | 0;
+        if (idx < 0 || idx >= s.qs.length) return send(ws, { t: 'error', msg: 'Question not found' });
+        const cleaned = cleanSingleQuestion(m.q);
+        if (!cleaned) return send(ws, { t: 'error', msg: 'Invalid question format' });
+        s.qs[idx] = cleaned;
+        if (m.retake) {
+          Object.values(s.players).forEach(p => { if (p.a) delete p.a[idx]; });
+          s.cur = idx;
+          s.status = 'live';
+          s.rev = null;
+          const showOpts = m.showOptions !== false;
+          s.optLive = showOpts;
+          if (showOpts) s.qStart[idx] = Date.now();
+          else s.qStart[idx] = null;
+        }
+        save(); return broadcast(c.code);
+      }
+      if (m.t === 'add_session_question') {
+        const cleaned = cleanSingleQuestion(m.q);
+        if (!cleaned) return send(ws, { t: 'error', msg: 'Invalid question format' });
+        if (m.insertAfterCur && s.cur >= 0 && s.cur < s.qs.length - 1) {
+          const ins = s.cur + 1;
+          s.qs.splice(ins, 0, cleaned);
+          const remap = map => {
+            const nm = {};
+            for (const k in map) {
+              const n = +k;
+              nm[n >= ins ? n + 1 : n] = map[k];
+            }
+            return nm;
+          };
+          s.qStart = remap(s.qStart);
+          Object.values(s.players).forEach(p => { if (p.a) p.a = remap(p.a); });
+        } else {
+          s.qs.push(cleaned);
+        }
+        if (s.status === 'ended') s.status = 'live';
+        save(); return broadcast(c.code);
+      }
+      if (m.t === 'swap_session_questions') {
+        const i = m.i | 0, j = m.j | 0;
+        if (i < 0 || j < 0 || i >= s.qs.length || j >= s.qs.length || i === j) return;
+        const tmpQ = s.qs[i]; s.qs[i] = s.qs[j]; s.qs[j] = tmpQ;
+        const tmpT = s.qStart[i];
+        if (s.qStart[j] !== undefined) s.qStart[i] = s.qStart[j]; else delete s.qStart[i];
+        if (tmpT !== undefined) s.qStart[j] = tmpT; else delete s.qStart[j];
+        Object.values(s.players).forEach(p => {
+          if (p.a) {
+            const aI = p.a[i], aJ = p.a[j];
+            if (aJ !== undefined) p.a[i] = aJ; else delete p.a[i];
+            if (aI !== undefined) p.a[j] = aI; else delete p.a[j];
+          }
+        });
+        if (s.cur === i) s.cur = j; else if (s.cur === j) s.cur = i;
+        if (s.rev === i) s.rev = j; else if (s.rev === j) s.rev = i;
+        save(); return broadcast(c.code);
+      }
       return;
     }
     if (m.t === 'join') {
@@ -115,9 +207,19 @@ wss.on('connection', ws => {
       js.players[pid] = js.players[pid] || { name, a: {} }; js.players[pid].name = name;
       ws.ctx = { code, pid }; save(); return broadcast(code, pid);
     }
+    if (m.t === 'tab_switch' && s && c.pid) {
+      const p = s.players[c.pid];
+      if (p) {
+        p.sw = (p.sw || 0) + 1;
+        p.lastSw = Date.now();
+        save();
+        pushHost(c.code);
+      }
+      return;
+    }
     if (m.t === 'answer' && s && c.pid) {
       const p = s.players[c.pid], i = m.i | 0; // one answer per question, enforced here
-      if (!p || s.status !== 'live' || s.cur < 0 || s.rev === s.cur || p.a[s.cur] || i < 0 || i >= s.qs[s.cur].o.length) return;
+      if (!p || s.status !== 'live' || s.cur < 0 || s.optLive === false || s.rev === s.cur || p.a[s.cur] || i < 0 || i >= s.qs[s.cur].o.length) return;
       p.a[s.cur] = { c: i, t: Date.now(), n: s.seq = (s.seq || 0) + 1 }; save();
       send(ws, playerView(s, c.pid)); pushHost(c.code);
     }
