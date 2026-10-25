@@ -43,7 +43,8 @@ function stats(s) {
   const rows = Object.entries(s.players).map(([id, p]) => {
     let score = 0, tms = 0, cor = 0;
     per.forEach(l => { const r = l.find(x => x.id === id); if (r) { score += r.pts; if (r.ok) { tms += r.ms; cor++; } } });
-    return { id, name: p.name, score, tms, cor, sw: p.sw || 0 };
+    const adj = p.adj || 0; // manual host adjustment (+/-), kept separate so it can be reset
+    return { id, name: p.name, score: score + adj, base: score, adj, tms, cor, sw: p.sw || 0 };
   }).sort((a, b) => (b.score - a.score) || (b.cor - a.cor) || (a.tms - b.tms)); // tie -> more correct answers, then lower total time
   const switches = Object.entries(s.players).map(([id, p]) => ({
     id, name: p.name, sw: p.sw || 0, lastSw: p.lastSw || 0
@@ -59,6 +60,8 @@ function playerView(s, pid) {
   if (s.status === 'ended' || out.rev !== null) {
     const st = stats(s);
     out.board = st.rows.slice(0, 50).map(r => ({ id: r.id, name: r.name, score: r.score })); // Never leak tab switch data to participants
+    const mi = st.rows.findIndex(r => r.id === pid); // the player's own rank, even if outside the top 50
+    if (mi >= 0) out.me = { rank: mi + 1, score: st.rows[mi].score, adj: st.rows[mi].adj };
     if (live && st.per[cur]) out.pts = (st.per[cur].find(r => r.id === pid) || {}).pts ?? 0; // points earned on this question
   }
   return out;
@@ -68,7 +71,9 @@ const hostView = (code, s) => ({ t: 'host', code, title: s.title, qs: s.qs, cur:
 function broadcast(code, onlyPid) {
   const s = S[code]; if (!s) return;
   wss.clients.forEach(ws => { const c = ws.ctx; if (!c || c.code !== code) return;
-    if (c.admin) send(ws, hostView(code, s)); else if (onlyPid === undefined || c.pid === onlyPid) send(ws, playerView(s, c.pid)); });
+    if (c.admin) send(ws, hostView(code, s));
+    else if (c.spec && s.status !== 'ended') return; // view-only visitors only ever see the finished leaderboard
+    else if (onlyPid === undefined || c.pid === onlyPid) send(ws, playerView(s, c.pid)); });
 }
 const hostTimers = {}; // many answers arriving together -> one host update (max ~7/sec)
 function pushHost(code) {
@@ -76,6 +81,7 @@ function pushHost(code) {
   hostTimers[code] = setTimeout(() => { delete hostTimers[code]; const s = S[code]; if (!s) return;
     wss.clients.forEach(ws => { const c = ws.ctx; if (c && c.admin && c.code === code) send(ws, hostView(code, s)); }); }, 150);
 }
+const has = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
 const safeEq = (a, b) => { const x = Buffer.from(String(a)), y = Buffer.from(String(b)); return x.length === y.length && crypto.timingSafeEqual(x, y); };
 
 setInterval(() => wss.clients.forEach(ws => { if (!ws.alive) return ws.terminate(); ws.alive = false; ws.ping(); }), 25000); // drop dead sockets, keep proxies happy
@@ -102,7 +108,7 @@ wss.on('connection', ws => {
       if (m.t === 'restart_session' && S[m.code]) { // restart existing/past session: same code, keep connected players, clear answers/scores
         const sess = S[m.code];
         sess.cur = -1; sess.status = 'lobby'; sess.rev = null; sess.optLive = true; sess.qStart = {}; sess.seq = 0;
-        Object.values(sess.players).forEach(p => { p.a = {}; p.sw = 0; delete p.lastSw; });
+        Object.values(sess.players).forEach(p => { p.a = {}; p.sw = 0; p.adj = 0; delete p.lastSw; });
         c.code = m.code; save(); return broadcast(m.code);
       }
       if (m.t === 'delete_session') { delete S[m.code]; save(); return send(ws, { t: 'list', items: sessionList() }); }
@@ -119,6 +125,17 @@ wss.on('connection', ws => {
       }
       if (m.t === 'open' && S[m.code]) { c.code = m.code; return broadcast(m.code); }
       if (!s) return;
+      if (m.t === 'adjust_score') { // host adds/deducts Vidyut for a player; allowed in any status, including after the quiz ended
+        if (!has(s.players, m.pid)) return send(ws, { t: 'error', msg: 'Player not found' });
+        const p = s.players[m.pid];
+        if (m.reset) p.adj = 0;
+        else {
+          const d = Math.trunc(Number(m.delta));
+          if (!Number.isFinite(d) || d === 0 || Math.abs(d) > 100000) return send(ws, { t: 'error', msg: 'Invalid amount' });
+          p.adj = Math.max(-1e6, Math.min(1e6, (p.adj || 0) + d));
+        }
+        save(); return broadcast(c.code);
+      }
       if (m.t === 'next' && s.status !== 'ended') {
         if (s.cur >= s.qs.length - 1) { s.status = 'ended'; s.rev = null; }
         else {
@@ -200,10 +217,20 @@ wss.on('connection', ws => {
       }
       return;
     }
+    if (m.t === 'leave') { ws.ctx = {}; return; }
+    if (m.t === 'view') { // read-only final leaderboard for someone who left or never joined; only once the quiz has ended
+      const code = String(m.code || '').toUpperCase(), vs = S[code], pid = String(m.pid || '').slice(0, 64);
+      if (!vs) return send(ws, { t: 'error', msg: 'No quiz found with that code.' });
+      if (vs.status !== 'ended') return send(ws, { t: 'error', msg: 'The leaderboard opens when the quiz ends. Use Join to take part.' });
+      ws.ctx = { code, pid, spec: !has(vs.players, pid) }; return send(ws, playerView(vs, pid));
+    }
     if (m.t === 'join') {
       const code = String(m.code || '').toUpperCase(), js = S[code], pid = String(m.pid || '').slice(0, 64), name = String(m.name || '').trim().slice(0, 24);
       if (!js) return send(ws, { t: 'error', msg: 'No quiz found with that code.' });
       if (!name || !pid) return send(ws, { t: 'error', msg: 'Name required.' });
+      if (js.status === 'ended' && !has(js.players, pid)) { // quiz is over and this device never played: view-only, don't add a ghost player
+        ws.ctx = { code, pid, spec: true }; return send(ws, playerView(js, pid));
+      }
       js.players[pid] = js.players[pid] || { name, a: {} }; js.players[pid].name = name;
       ws.ctx = { code, pid }; save(); return broadcast(code, pid);
     }

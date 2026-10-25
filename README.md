@@ -33,6 +33,8 @@ ADMIN_PASSWORD=choose-a-password npm start     # Windows PowerShell: $env:ADMIN_
   - Restart any active, paused, or finished session with the **same room code and connected players**.
   - All scores, answers, and tab switches reset to 0, and player screens automatically return to the Lobby waiting state without anyone needing to re-scan the QR code or type a new code.
   - Can be triggered directly inside a running session or from the "Past & live sessions" list on the host dashboard.
+- **Manual Score Adjustments**: In the host leaderboard, use `+100` / `−100` / `±` (custom amount) / `↺` (reset) per participant. Works at any time, including after the quiz has ended; participants see the updated leaderboard instantly. Adjustments are added on top of the computed score and cleared on restart.
+- **Leaderboard After the Quiz**: Participants who close the page by accident are returned to their quiz (and the final leaderboard) when they reopen the site or re-scan the QR. Anyone can also enter the code and tap **View leaderboard** for a read-only view once the quiz has ended.
 
 ## Scoring (Vidyut currency ⚡)
 Per question, ranked by the order answers reach the server: 1st correct = 1000, 2nd correct = 800, 3rd correct = 700, every later correct answer = 500, a wrong answer = 100, no answer = 0. Equal totals are ranked by more correct answers, then lower total answer time.

@@ -79,6 +79,7 @@ let ws,hello=null,hostCode=null,lastStr='',name=(()=>{try{return localStorage.qn
 let hostTab='scores'; // 'scores' or 'switches'
 let soundOn = localStorage.soundOn !== 'false';
 let prevOptLive = null;
+let joinCode='';
 
 /* ---- Web Audio API / KBC Sound Synthesizer ---- */
 let audioCtx = null;
@@ -164,14 +165,19 @@ function connect(){
   ws.onopen=()=>hello&&hello();
   ws.onmessage=e=>{
     const m=JSON.parse(e.data);
-    if(m.t==='error'){if(m.msg==='Wrong password'){pw='';sessionStorage.removeItem('pw');hello=null}const el=$('#err');if(el)el.textContent=m.msg;else alert(m.msg);return}
+    if(m.t==='error'){
+      if(m.msg==='Wrong password'){pw='';sessionStorage.removeItem('pw');hello=null}
+      if(m.msg==='No quiz found with that code.'&&!isHost){try{localStorage.removeItem('qcode')}catch(_){}if(!$('#err')){hello=null;home('')}} // saved quiz no longer exists
+      const el=$('#err');if(el)el.textContent=m.msg;else alert(m.msg);return}
     if(m.t==='admin_ok'){sessionStorage.pw=pw;if(hostCode)tx({t:'open',code:hostCode});else hostHome();return}
     if(m.t==='list'){return hostList(m.items)}
     if(m.t==='quizzes'){return hostQuizzes(m.items)}
     if(m.t==='saved'){hostHome();return}
     if(m.t==='play'){
+      if(!hello)return; // ignore stray updates after leaving a quiz
       if(e.data===lastStr)return;
       lastStr=e.data;
+      if(joinCode){try{localStorage.qcode=joinCode}catch(_){}} // remember the quiz so reopening the page brings the player back to it
       if(m.cur>=0 && m.optLive && prevOptLive===false){
         playKbcSound();
       }
@@ -188,7 +194,30 @@ function connect(){
   ws.onclose=()=>setTimeout(connect,1500);
 }
 const tx=o=>ws&&ws.readyState===1&&ws.send(JSON.stringify(o));
-function route(){stopScan();closeModal();view=null;hello=null;lastStr='';hostCode=null;prevOptLive=null;isHost=location.hash==='#host';updateTopNav();isHost?hostLogin():home(location.hash.slice(1).toUpperCase())}
+function route(){
+  stopScan();closeModal();view=null;hello=null;lastStr='';hostCode=null;prevOptLive=null;joinCode='';
+  isHost=location.hash==='#host';updateTopNav();
+  if(isHost) return hostLogin();
+  const hashCode=location.hash.slice(1).toUpperCase();
+  let saved='';try{saved=localStorage.qcode||''}catch(_){}
+  const code=hashCode||saved;
+  // Reopening the site (or re-scanning the same QR) returns the player to the quiz they were in, including the final leaderboard
+  if(/^[A-Z0-9]{5}$/.test(code)&&(!hashCode||hashCode===saved)) return autoJoin(code);
+  home(hashCode);
+}
+function autoJoin(code){
+  joinCode=code;
+  app.innerHTML=`<div class="hero"><h1>Vidyut <span>Quiz</span></h1><p>Reconnecting to quiz ${esc(code)}…</p></div><div class="card"><button class="sec" id="other">Join a different quiz</button></div>`;
+  $('#other').onclick=leaveQuiz;
+  hello=()=>tx(name?{t:'join',code,name,pid}:{t:'view',code,pid});
+  if(ws&&ws.readyState===1)hello();
+}
+function leaveQuiz(){
+  tx({t:'leave'});
+  try{localStorage.removeItem('qcode')}catch(_){}
+  hello=null;view=null;lastStr='';joinCode='';
+  if(location.hash) location.hash=''; else route(); // clearing the hash triggers route()
+}
 addEventListener('hashchange',route);
 
 /* ---- Tab Switch Detection (Participant Anti-Cheat) ---- */
@@ -215,17 +244,20 @@ function closeModal(){modalSlot.innerHTML='';}
 function home(pre){
   app.innerHTML=`<div class="hero"><h1>Vidyut <span>Quiz</span></h1><p>Enter your name and the code on the big screen to join the battle ⚡</p></div><div class="card"><label class="mu">Your name</label><input id="nm" maxlength="24" value="${esc(name)}" placeholder="e.g. Aarav"><div style="height:10px"></div>
   <label class="mu">Quiz code</label><input id="cd" maxlength="5" value="${esc(pre||'')}" placeholder="ABCDE" style="text-transform:uppercase;letter-spacing:.2em;font-weight:700">
-  <div class="row" style="margin-top:14px"><button id="go">Join</button><button class="sec" id="scan">📷 Scan QR</button></div><div id="scanbox"></div><p class="mu" id="err"></p></div>`;
+  <div class="row" style="margin-top:14px"><button id="go">Join</button><button class="sec" id="scan">📷 Scan QR</button><button class="sec" id="viewlb">🏆 View leaderboard</button></div><p class="mu" style="margin:10px 0 0;font-size:13px">Left a finished quiz by accident? Enter its code and tap <b>View leaderboard</b>.</p><div id="scanbox"></div><p class="mu" id="err"></p></div>`;
   $('#go').onclick=()=>{const c=$('#cd').value.trim().toUpperCase(),n=$('#nm').value.trim();
     if(!n)return $('#err').textContent='Please enter your name.';if(!/^[A-Z0-9]{5}$/.test(c))return $('#err').textContent='Code must be 5 characters.';
-    name=n;try{localStorage.qname=n}catch(e){}stopScan();hello=()=>tx({t:'join',code:c,name:n,pid});hello()};
+    name=n;try{localStorage.qname=n}catch(e){}stopScan();joinCode=c;hello=()=>tx({t:'join',code:c,name:n,pid});hello()};
   $('#scan').onclick=startScan;
+  $('#viewlb').onclick=()=>{const c=$('#cd').value.trim().toUpperCase();
+    if(!/^[A-Z0-9]{5}$/.test(c))return $('#err').textContent='Enter the 5-character quiz code to view its leaderboard.';
+    stopScan();joinCode=c;hello=()=>tx({t:'view',code:c,pid});hello()};
 }
 function playRender(){
   const v=view; if(!v) return;
   const ans=v.mine?.[v.cur];
   let h=`<div class="row"><h2 class="grow">${esc(v.title)}</h2><span class="mu">${esc(v.name)}</span></div>`;
-  if(v.status==='ended') h+=`<div class="card"><h2>🏁 Quiz finished</h2>${boardHTML(v.board,true)}</div>`;
+  if(v.status==='ended') h+=`<div class="card"><h2>🏁 Quiz finished</h2>${v.me?`<p><b>You: #${v.me.rank} · ${v.me.score} ⚡</b>${v.me.adj?` <span class="tag neutral">${v.me.adj>0?'+':''}${v.me.adj} host adjustment</span>`:''}</p>`:'<p class="mu">Final leaderboard (view only).</p>'}${boardHTML(v.board,true)}<div class="row" style="margin-top:12px"><button class="sec" id="leaveQ">Join another quiz</button></div></div>`;
   else if(v.cur<0) h+=`<div class="card"><h2>Waiting for the host to start…</h2><p class="mu">You're in! The first question appears when the host is ready.</p></div>`;
   else {
     const rev=v.rev, locked=ans||rev!==null;
@@ -247,6 +279,7 @@ function playRender(){
     if(rev!==null) h+=`<div class="card"><h2>Leaderboard</h2>${boardHTML(v.board,false)}</div>`;
   }
   app.innerHTML=h;
+  const lq=$('#leaveQ');if(lq)lq.onclick=leaveQuiz;
   app.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
     getAudioCtx();
     tx({t:'answer',i:+b.dataset.i});
@@ -392,7 +425,7 @@ function hostRender(){
     </div>`;
 
   if(hostTab==='scores'){
-    h+=v.rows.length?`<div class="wrap"><table><tr><th>#</th><th>Name</th><th>Vidyut ⚡</th><th>Correct</th></tr>${v.rows.map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.name)}</td><td><b>${r.score}</b></td><td>${r.cor||0}/${n}</td></tr>`).join('')}</table></div>`:'<p class="mu">Nobody has joined yet.</p>';
+    h+=v.rows.length?`<div class="wrap"><table><tr><th>#</th><th>Name</th><th>Vidyut ⚡</th><th>Correct</th><th>Adjust</th></tr>${v.rows.map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.name)}</td><td><b>${r.score}</b>${r.adj?` <span class="tag neutral">${r.adj>0?'+':''}${r.adj}</span>`:''}</td><td>${r.cor||0}/${n}</td><td style="white-space:nowrap"><button class="sec btn-sm" data-adj="${esc(r.id)}" data-amt="100">+100</button> <button class="sec btn-sm" data-adj="${esc(r.id)}" data-amt="-100">−100</button> <button class="sec btn-sm" data-adjc="${esc(r.id)}">±</button>${r.adj?` <button class="sec btn-sm" data-adjr="${esc(r.id)}" title="Remove manual adjustment">↺</button>`:''}</td></tr>`).join('')}</table></div><p class="mu" style="margin-bottom:0">Add or deduct Vidyut ⚡ any time, even after the quiz ends. Players see the updated leaderboard instantly.</p>`:'<p class="mu">Nobody has joined yet.</p>';
   } else {
     // Tab Switch Anti-Cheat View
     h+=`<p class="mu" style="margin-top:0">Real-time mobile/desktop browser tab switch detector. Only visible to you (the host).</p>`;
@@ -451,6 +484,14 @@ function hostRender(){
   // Tab listeners
   $('#tabScores').onclick=()=>{hostTab='scores';hostRender()};
   $('#tabSwitches').onclick=()=>{hostTab='switches';hostRender()};
+
+  // Manual score adjustments (work in any status, including after the quiz has ended)
+  app.querySelectorAll('[data-adj]').forEach(b=>b.onclick=()=>tx({t:'adjust_score',pid:b.dataset.adj,delta:+b.dataset.amt}));
+  app.querySelectorAll('[data-adjc]').forEach(b=>b.onclick=()=>{
+    const d=parseInt(prompt('Add (positive) or deduct (negative) Vidyut ⚡ — e.g. 250 or -150'),10);
+    if(d) tx({t:'adjust_score',pid:b.dataset.adjc,delta:d});
+  });
+  app.querySelectorAll('[data-adjr]').forEach(b=>b.onclick=()=>tx({t:'adjust_score',pid:b.dataset.adjr,reset:true}));
 
   // Nav actions
   $('#home').onclick=hostHome;
